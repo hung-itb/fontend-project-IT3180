@@ -1,0 +1,399 @@
+
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+#navbar {
+    height: 80px;
+    border-bottom: 2px solid #ccc;
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 30px;
+    align-items: center;
+}
+
+#nav-right-side {
+    height: 100%;
+    display: flex;
+    align-items: center;
+}
+
+#nav-right-side input {
+    height: 69%;
+    margin-right: 30px;
+    border: none;
+    background-color: #ccc;
+    border-radius: 40px;
+    width: 250px;
+    padding-left: 18px;
+}
+
+#nav-right-side input::placeholder {
+    color: black;
+}
+
+#nav-right-side img {
+    height: 100%;
+}
+
+#main-container {
+    flex: 1;
+    display: flex;
+}
+
+#left-side-bar {
+    background-color: white;
+    height: 100%;
+    width: 20%;
+}
+
+#left-side-bar .item {
+    width: 80%;
+    border: 2px solid;
+    margin: auto;
+    margin-top: 20px;
+    height: 120px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 24px;
+    cursor: pointer;
+}
+
+#left-side-bar .item:hover {
+    background-color: #79E0EE;
+}
+
+#left-side-bar .item span {
+    text-align: center;
+    font-size: 40px;
+    width: 80%;
+}
+
+#left-side-bar .item.active {
+    background-color: #79E0EE;
+}
+
+#main-container .content {
+    flex: 1;
+    padding: 20px;
+    height: 100%;
+}
+
+#main-container #input-transaction {
+    display: flex;
+}
+
+#main-container #input-transaction .left {
+    width: 40%;
+}
+
+#main-container #input-transaction .right {
+    flex: 1;
+    height: 100%;
+}
+
+#main-container #input-transaction .left form {
+    display: flex;
+    flex-direction: column;
+    background-color: #98EECC;
+    padding: 40px;
+    border-radius: 36px;
+}
+
+#main-container #input-transaction .left form input {
+    padding: 12px;
+    margin-bottom: 16px;
+    border: none;
+    border-radius: 20px;
+    font-size: 16px;
+}
+
+#main-container #input-transaction .left form button {
+    background-color: #00A9FF;
+    color: black;
+    font-size: 23px;
+    width: fit-content;
+    padding: 6px 32px;
+    border: none;
+    border-radius: 19px;
+    margin-top: 40px;
+    margin-left: auto;
+}
+
+#main-container #input-transaction #money-spent {
+    width: 100%;
+    padding: 20px 40px;
+    background-color: #FBFFDC;
+    margin-top: 40px;
+    min-height: 160px;
+    border-radius: 32px;
+    font-size: 24px;
+    padding-right: 160px;
+}
+
+#main-container #input-transaction #money-spent .line {
+    display: flex;
+    justify-content: space-between;
+}
+
+.value-green {
+    color: #1DB435;
+}
+
+.value-red {
+    color: red;
+}
+
+#list-transactions {
+    height: 100%;
+    background-color: #79E0EE;
+    margin-left: 50px;
+    padding: 28px;
+    border-radius: 36px;
+    display: flex;
+    flex-direction: column;
+}
+
+#list-transactions .time-control {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 45px;
+}
+
+#list-transactions .time-control img {
+    height: 100%;
+}
+
+#list-transactions .time-control .time {
+    font-size: 50px;
+    font-weight: 600;
+}
+
+#list-transactions .user-selection {
+    margin-top: 24px;
+    padding: 9px;
+    width: max-content;
+}
+
+#list-transactions #transactions {
+    margin-top: 16px;
+    flex: 1;
+    overflow-y: auto;
+}
+
+#list-transactions .item {
+    margin-top: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 72px;
+}
+
+#list-transactions .item:first-child {
+    margin-top: 0;
+}
+
+#list-transactions .item .info {
+    background-color: white;
+    height: 100%;
+    flex: 1;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+#list-transactions .item .info .product-name {
+    font-size: 24px;
+}
+
+#list-transactions .item .info .user-bought {
+    opacity: 0.5;
+}
+
+#list-transactions .item .cost {
+    background-color: white;
+    height: 100%;
+    margin-left: 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 32px;
+    font-size: 27px;
+    font-weight: 600;
+}
+
+#fixed-costs {
+    display: flex;
+}
+
+#fixed-costs .left {
+    width: 60%;
+    height: 100%;
+}
+
+#fixed-costs .right {
+    flex: 1;
+    height: 100%;
+}
+
+#fixed-costs #list-fixed-costs {
+    height: 100%;
+    background-color: #98EECC;
+    padding: 36px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+#list-fixed-costs .header {
+    display: flex;
+}
+
+#list-fixed-costs .header .header-col {
+    text-align: center;
+    font-size: 32px;
+    font-weight: 600;
+}
+
+#list-fixed-costs .header .header-col:first-child {
+    width: 65%;
+    margin-left: 12px;
+}
+
+#list-fixed-costs .header .header-col:nth-child(2) {
+    flex: 1;
+}
+
+#list-fixed-costs .note {
+    display: flex;
+    justify-content: space-between;
+    width: 72%;
+    margin: auto;
+    background-color: white;
+    padding: 5px 12px;
+    border-radius: 16px;
+    font-weight: 600;
+    align-items: center;
+    margin-top: 16px;
+}
+
+#list-fixed-costs .note .item {
+    display: flex;
+    align-items: center;
+}
+
+#list-fixed-costs .note .title {
+    
+}
+
+#list-fixed-costs .note .color {
+    height: 14px;
+    width: 14px;
+}
+
+#list-fixed-costs .note .name {
+    margin-left: 4px;
+}
+
+#list-fixed-costs .fixed-costs {
+    flex: 1;
+}
+
+#list-fixed-costs .fixed-costs .item {
+    display: flex;
+    text-align: center;
+}
+
+#list-fixed-costs .fixed-costs .item > * {
+    background-color: white;
+    padding: 10px;
+    margin-top: 20px;
+    font-size: 20px;
+    border-radius: 25px;
+}
+
+#list-fixed-costs .fixed-costs .item .title {
+    width: 65%;
+}
+
+#list-fixed-costs .fixed-costs .item .value {
+    flex: 1;
+    margin-left: 12px;
+    background-color: #D80032;
+}
+
+#list-fixed-costs .fixed-costs .item .value.done {
+    background-color: #1BDD2E;
+}
+
+#list-fixed-costs .total {
+    display: flex;
+    text-align: center;
+}
+
+#list-fixed-costs .total > * {
+    background-color: white;
+    padding: 10px;
+    margin-top: 20px;
+    font-size: 20px;
+    border-radius: 25px;
+    background-color: #FBFFDC;
+}
+
+#list-fixed-costs .total .title {
+    width: 65%;
+    font-weight: 600;
+}
+
+#list-fixed-costs .total .value {
+    flex: 1;
+    margin-left: 12px;
+}
+
+#fixed-costs > .right > * {
+    background-color: #79E0EE;
+}
+
+#fixed-costs-general-info {
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+}
+
+#fixed-costs-general-info .header {
+    text-align: center;
+    font-size: 47px;
+    font-weight: 600;
+}
+
+#fixed-costs-general-info .item {
+    display: flex;
+    margin-top: 20px;
+    align-items: center;
+}
+
+#fixed-costs-general-info .item .title {
+    flex: 1;
+    text-align: end;
+    margin-right: 30px;
+    font-size: 30px;
+}
+
+#fixed-costs-general-info .item .value {
+    flex: 1;
+    background-color: #FBFFDC;
+    padding: 12px;
+    text-align: center;
+    font-size: 24px;
+}
