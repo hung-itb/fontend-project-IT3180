@@ -246,6 +246,8 @@ body {
     flex: 1;
     height: 100%;
     margin-left: 40px;
+    display: flex;
+    flex-direction: column;
 }
 
 #fixed-costs #list-fixed-costs {
@@ -370,11 +372,13 @@ body {
     display: flex;
     flex-direction: column;
     padding: 20px;
+    flex: 1;
+    overflow-y: auto;
 }
 
 #fixed-costs-general-info .header {
     text-align: center;
-    font-size: 47px;
+    font-size: 44px;
     font-weight: 600;
 }
 
@@ -404,7 +408,11 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 40px;
+    padding: 24px;
+}
+
+#admin-bank-info > * {
+    text-align: center;
 }
 
 #admin-bank-info .header {
@@ -418,6 +426,6 @@ body {
 }
 
 #admin-bank-info .qr-code {
-    width: 70%;
+    width: 60%;
     margin-top: 30px;
 }
