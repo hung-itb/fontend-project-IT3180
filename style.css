@@ -245,6 +245,7 @@ body {
 #fixed-costs .right {
     flex: 1;
     height: 100%;
+    margin-left: 40px;
 }
 
 #fixed-costs #list-fixed-costs {
@@ -396,4 +397,27 @@ body {
     padding: 12px;
     text-align: center;
     font-size: 24px;
+}
+
+#admin-bank-info {
+    margin-top: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px;
+}
+
+#admin-bank-info .header {
+    font-size: 44px;
+    font-weight: 600;
+}
+
+#admin-bank-info .info {
+    font-size: 30px;
+    margin-top: 16px;
+}
+
+#admin-bank-info .qr-code {
+    width: 70%;
+    margin-top: 30px;
 }
