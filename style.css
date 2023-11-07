@@ -1,431 +1,367 @@
-
 * {
-    padding: 0;
-    margin: 0;
-    box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
 }
 
 body {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-}
-
-#navbar {
-    height: 80px;
-    border-bottom: 2px solid #ccc;
-    display: flex;
-    justify-content: space-between;
-    padding: 12px 30px;
-    align-items: center;
-}
-
-#nav-right-side {
-    height: 100%;
-    display: flex;
-    align-items: center;
-}
-
-#nav-right-side input {
-    height: 69%;
-    margin-right: 30px;
-    border: none;
-    background-color: #ccc;
-    border-radius: 40px;
-    width: 250px;
-    padding-left: 18px;
-}
-
-#nav-right-side input::placeholder {
-    color: black;
-}
-
-#nav-right-side img {
-    height: 100%;
-}
-
-#main-container {
-    flex: 1;
-    display: flex;
-}
-
-#left-side-bar {
-    background-color: white;
-    height: 100%;
-    width: 20%;
-}
-
-#left-side-bar .item {
-    width: 80%;
-    border: 2px solid;
-    margin: auto;
-    margin-top: 20px;
-    height: 120px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border-radius: 24px;
-    cursor: pointer;
-}
-
-#left-side-bar .item:hover {
-    background-color: #79E0EE;
-}
-
-#left-side-bar .item span {
-    text-align: center;
-    font-size: 40px;
-    width: 80%;
-}
-
-#left-side-bar .item.active {
-    background-color: #79E0EE;
-}
-
-#main-container .content {
-    flex: 1;
-    padding: 20px;
-    height: 100%;
-}
-
-#main-container #input-transaction {
-    display: flex;
-}
-
-#main-container #input-transaction .left {
-    width: 40%;
-}
-
-#main-container #input-transaction .right {
-    flex: 1;
-    height: 100%;
-}
-
-#main-container #input-transaction .left form {
-    display: flex;
-    flex-direction: column;
-    background-color: #98EECC;
-    padding: 40px;
-    border-radius: 36px;
-}
-
-#main-container #input-transaction .left form input {
-    padding: 12px;
-    margin-bottom: 16px;
-    border: none;
-    border-radius: 20px;
-    font-size: 16px;
-}
-
-#main-container #input-transaction .left form button {
-    background-color: #00A9FF;
-    color: black;
-    font-size: 23px;
-    width: fit-content;
-    padding: 6px 32px;
-    border: none;
-    border-radius: 19px;
-    margin-top: 40px;
-    margin-left: auto;
-}
-
-#main-container #input-transaction #money-spent {
-    width: 100%;
-    padding: 20px 40px;
-    background-color: #FBFFDC;
-    margin-top: 40px;
-    min-height: 160px;
-    border-radius: 32px;
-    font-size: 24px;
-    padding-right: 160px;
-}
-
-#main-container #input-transaction #money-spent .line {
-    display: flex;
-    justify-content: space-between;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
 }
 
 .value-green {
-    color: #1DB435;
+  color: #1DB435;
 }
 
 .value-red {
-    color: red;
+  color: red;
 }
 
-#list-transactions {
-    height: 100%;
-    background-color: #79E0EE;
-    margin-left: 50px;
-    padding: 28px;
-    border-radius: 36px;
-    display: flex;
-    flex-direction: column;
+#navbar {
+  height: 80px;
+  border-bottom: 2px solid #ccc;
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 30px;
+  align-items: center;
+}
+#navbar #nav-right-side {
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+#navbar #nav-right-side input {
+  height: 69%;
+  margin-right: 30px;
+  border: none;
+  background-color: #ccc;
+  border-radius: 40px;
+  width: 250px;
+  padding-left: 18px;
+}
+#navbar #nav-right-side input::-moz-placeholder {
+  color: black;
+}
+#navbar #nav-right-side input::placeholder {
+  color: black;
+}
+#navbar #nav-right-side img {
+  height: 100%;
 }
 
-#list-transactions .time-control {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    height: 45px;
+#main-container {
+  flex: 1;
+  display: flex;
 }
-
-#list-transactions .time-control img {
-    height: 100%;
+#main-container #left-side-bar {
+  background-color: white;
+  height: 100%;
+  width: 20%;
 }
-
-#list-transactions .time-control .time {
-    font-size: 50px;
-    font-weight: 600;
+#main-container #left-side-bar .item {
+  width: 80%;
+  border: 2px solid;
+  margin: auto;
+  margin-top: 20px;
+  height: 120px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 24px;
+  cursor: pointer;
 }
-
-#list-transactions .user-selection {
-    margin-top: 24px;
-    padding: 9px;
-    width: max-content;
+#main-container #left-side-bar .item:hover {
+  background-color: #79E0EE;
 }
-
-#list-transactions #transactions {
-    margin-top: 16px;
-    flex: 1;
-    overflow-y: auto;
+#main-container #left-side-bar .item span {
+  text-align: center;
+  font-size: 40px;
+  width: 80%;
 }
-
-#list-transactions .item {
-    margin-top: 16px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    height: 72px;
+#main-container #left-side-bar .item.active {
+  background-color: #79E0EE;
 }
-
-#list-transactions .item:first-child {
-    margin-top: 0;
+#main-container .content {
+  flex: 1;
+  padding: 20px;
+  height: 100%;
 }
-
-#list-transactions .item .info {
-    background-color: white;
-    height: 100%;
-    flex: 1;
-    padding: 10px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+#main-container #input-transaction {
+  display: flex;
 }
-
-#list-transactions .item .info .product-name {
-    font-size: 24px;
+#main-container #input-transaction .left {
+  width: 40%;
 }
-
-#list-transactions .item .info .user-bought {
-    opacity: 0.5;
+#main-container #input-transaction .left form {
+  display: flex;
+  flex-direction: column;
+  background-color: #98EECC;
+  padding: 40px;
+  border-radius: 36px;
 }
-
-#list-transactions .item .cost {
-    background-color: white;
-    height: 100%;
-    margin-left: 16px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 32px;
-    font-size: 27px;
-    font-weight: 600;
+#main-container #input-transaction .left form input {
+  padding: 12px;
+  margin-bottom: 16px;
+  border: none;
+  border-radius: 20px;
+  font-size: 16px;
 }
-
-#fixed-costs {
-    display: flex;
+#main-container #input-transaction .left form button {
+  background-color: #00A9FF;
+  color: black;
+  font-size: 23px;
+  width: -moz-fit-content;
+  width: fit-content;
+  padding: 6px 32px;
+  border: none;
+  border-radius: 19px;
+  margin-top: 40px;
+  margin-left: auto;
 }
-
-#fixed-costs .left {
-    width: 60%;
-    height: 100%;
+#main-container #input-transaction .left #money-spent {
+  width: 100%;
+  padding: 20px 40px;
+  background-color: #FBFFDC;
+  margin-top: 40px;
+  min-height: 160px;
+  border-radius: 32px;
+  font-size: 24px;
+  padding-right: 160px;
 }
-
-#fixed-costs .right {
-    flex: 1;
-    height: 100%;
-    margin-left: 40px;
-    display: flex;
-    flex-direction: column;
+#main-container #input-transaction .left #money-spent .line {
+  display: flex;
+  justify-content: space-between;
 }
-
-#fixed-costs #list-fixed-costs {
-    height: 100%;
-    background-color: #98EECC;
-    padding: 36px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+#main-container #input-transaction .right {
+  flex: 1;
+  height: 100%;
 }
-
-#list-fixed-costs .header {
-    display: flex;
+#main-container #input-transaction .right #list-transactions {
+  height: 100%;
+  background-color: #79E0EE;
+  margin-left: 50px;
+  padding: 28px;
+  border-radius: 36px;
+  display: flex;
+  flex-direction: column;
 }
-
-#list-fixed-costs .header .header-col {
-    text-align: center;
-    font-size: 32px;
-    font-weight: 600;
+#main-container #input-transaction .right #list-transactions .time-control {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 45px;
 }
-
-#list-fixed-costs .header .header-col:first-child {
-    width: 65%;
-    margin-left: 12px;
+#main-container #input-transaction .right #list-transactions .time-control img {
+  height: 100%;
 }
-
-#list-fixed-costs .header .header-col:nth-child(2) {
-    flex: 1;
+#main-container #input-transaction .right #list-transactions .time-control .time {
+  font-size: 50px;
+  font-weight: 600;
 }
-
-#list-fixed-costs .note {
-    display: flex;
-    justify-content: space-between;
-    width: 72%;
-    margin: auto;
-    background-color: white;
-    padding: 5px 12px;
-    border-radius: 16px;
-    font-weight: 600;
-    align-items: center;
-    margin-top: 16px;
+#main-container #input-transaction .right #list-transactions .user-selection {
+  margin-top: 24px;
+  padding: 9px;
+  width: -moz-max-content;
+  width: max-content;
 }
-
-#list-fixed-costs .note .item {
-    display: flex;
-    align-items: center;
+#main-container #input-transaction .right #list-transactions #transactions {
+  margin-top: 16px;
+  flex: 1;
+  overflow-y: auto;
 }
-
-#list-fixed-costs .note .title {
-    
+#main-container #input-transaction .right #list-transactions #transactions .item {
+  margin-top: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 72px;
 }
-
-#list-fixed-costs .note .color {
-    height: 14px;
-    width: 14px;
+#main-container #input-transaction .right #list-transactions #transactions .item:first-child {
+  margin-top: 0;
 }
-
-#list-fixed-costs .note .name {
-    margin-left: 4px;
+#main-container #input-transaction .right #list-transactions #transactions .item .info {
+  background-color: white;
+  height: 100%;
+  flex: 1;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
-
-#list-fixed-costs .fixed-costs {
-    flex: 1;
+#main-container #input-transaction .right #list-transactions #transactions .item .info .product-name {
+  font-size: 24px;
 }
-
-#list-fixed-costs .fixed-costs .item {
-    display: flex;
-    text-align: center;
+#main-container #input-transaction .right #list-transactions #transactions .item .info .user-bought {
+  opacity: 0.5;
 }
-
-#list-fixed-costs .fixed-costs .item > * {
-    background-color: white;
-    padding: 10px;
-    margin-top: 20px;
-    font-size: 20px;
-    border-radius: 25px;
+#main-container #input-transaction .right #list-transactions #transactions .item .cost {
+  background-color: white;
+  height: 100%;
+  margin-left: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 32px;
+  font-size: 27px;
+  font-weight: 600;
 }
-
-#list-fixed-costs .fixed-costs .item .title {
-    width: 65%;
+#main-container #fixed-costs {
+  display: flex;
 }
-
-#list-fixed-costs .fixed-costs .item .value {
-    flex: 1;
-    margin-left: 12px;
-    background-color: #D80032;
+#main-container #fixed-costs .left {
+  width: 60%;
+  height: 100%;
 }
-
-#list-fixed-costs .fixed-costs .item .value.done {
-    background-color: #1BDD2E;
+#main-container #fixed-costs .left #list-fixed-costs {
+  height: 100%;
+  background-color: #98EECC;
+  padding: 36px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
-
-#list-fixed-costs .total {
-    display: flex;
-    text-align: center;
+#main-container #fixed-costs .left #list-fixed-costs .header {
+  display: flex;
 }
-
-#list-fixed-costs .total > * {
-    background-color: white;
-    padding: 10px;
-    margin-top: 20px;
-    font-size: 20px;
-    border-radius: 25px;
-    background-color: #FBFFDC;
+#main-container #fixed-costs .left #list-fixed-costs .header .header-col {
+  text-align: center;
+  font-size: 32px;
+  font-weight: 600;
 }
-
-#list-fixed-costs .total .title {
-    width: 65%;
-    font-weight: 600;
+#main-container #fixed-costs .left #list-fixed-costs .header .header-col:first-child {
+  width: 65%;
+  margin-left: 12px;
 }
-
-#list-fixed-costs .total .value {
-    flex: 1;
-    margin-left: 12px;
+#main-container #fixed-costs .left #list-fixed-costs .header .header-col:nth-child(2) {
+  flex: 1;
 }
-
-#fixed-costs > .right > * {
-    background-color: #79E0EE;
+#main-container #fixed-costs .left #list-fixed-costs .note {
+  display: flex;
+  justify-content: space-between;
+  width: 72%;
+  margin: auto;
+  background-color: white;
+  padding: 5px 12px;
+  border-radius: 16px;
+  font-weight: 600;
+  align-items: center;
+  margin-top: 16px;
 }
-
-#fixed-costs-general-info {
-    display: flex;
-    flex-direction: column;
-    padding: 20px;
-    flex: 1;
-    overflow-y: auto;
+#main-container #fixed-costs .left #list-fixed-costs .note .item {
+  display: flex;
+  align-items: center;
 }
-
-#fixed-costs-general-info .header {
-    text-align: center;
-    font-size: 44px;
-    font-weight: 600;
+#main-container #fixed-costs .left #list-fixed-costs .note .color {
+  height: 14px;
+  width: 14px;
 }
-
-#fixed-costs-general-info .item {
-    display: flex;
-    margin-top: 20px;
-    align-items: center;
+#main-container #fixed-costs .left #list-fixed-costs .note .name {
+  margin-left: 4px;
 }
-
-#fixed-costs-general-info .item .title {
-    flex: 1;
-    text-align: end;
-    margin-right: 30px;
-    font-size: 30px;
+#main-container #fixed-costs .left #list-fixed-costs .fixed-costs {
+  flex: 1;
 }
-
-#fixed-costs-general-info .item .value {
-    flex: 1;
-    background-color: #FBFFDC;
-    padding: 12px;
-    text-align: center;
-    font-size: 24px;
+#main-container #fixed-costs .left #list-fixed-costs .fixed-costs .item {
+  display: flex;
+  text-align: center;
 }
-
-#admin-bank-info {
-    margin-top: 24px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 24px;
+#main-container #fixed-costs .left #list-fixed-costs .fixed-costs .item > * {
+  background-color: white;
+  padding: 10px;
+  margin-top: 20px;
+  font-size: 20px;
+  border-radius: 25px;
 }
-
-#admin-bank-info > * {
-    text-align: center;
+#main-container #fixed-costs .left #list-fixed-costs .fixed-costs .item .title {
+  width: 65%;
 }
-
-#admin-bank-info .header {
-    font-size: 44px;
-    font-weight: 600;
+#main-container #fixed-costs .left #list-fixed-costs .fixed-costs .item .value {
+  flex: 1;
+  margin-left: 12px;
+  background-color: #D80032;
 }
-
-#admin-bank-info .info {
-    font-size: 30px;
-    margin-top: 16px;
+#main-container #fixed-costs .left #list-fixed-costs .fixed-costs .item .value.done {
+  background-color: #1BDD2E;
 }
-
-#admin-bank-info .qr-code {
-    width: 60%;
-    margin-top: 30px;
+#main-container #fixed-costs .left #list-fixed-costs .total {
+  display: flex;
+  text-align: center;
 }
+#main-container #fixed-costs .left #list-fixed-costs .total > * {
+  background-color: white;
+  padding: 10px;
+  margin-top: 20px;
+  font-size: 20px;
+  border-radius: 25px;
+  background-color: #FBFFDC;
+}
+#main-container #fixed-costs .left #list-fixed-costs .total .title {
+  width: 65%;
+  font-weight: 600;
+}
+#main-container #fixed-costs .left #list-fixed-costs .total .value {
+  flex: 1;
+  margin-left: 12px;
+}
+#main-container #fixed-costs .right {
+  flex: 1;
+  height: 100%;
+  margin-left: 40px;
+  overflow-y: auto;
+}
+#main-container #fixed-costs .right #fixed-costs-general-info {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  flex: 1;
+  overflow-y: auto;
+}
+#main-container #fixed-costs .right #fixed-costs-general-info .header {
+  text-align: center;
+  font-size: 44px;
+  font-weight: 600;
+}
+#main-container #fixed-costs .right #fixed-costs-general-info .item {
+  display: flex;
+  margin-top: 20px;
+  align-items: center;
+}
+#main-container #fixed-costs .right #fixed-costs-general-info .item .title {
+  flex: 1;
+  text-align: end;
+  margin-right: 30px;
+  font-size: 30px;
+}
+#main-container #fixed-costs .right #fixed-costs-general-info .item .value {
+  flex: 1;
+  background-color: #FBFFDC;
+  padding: 12px;
+  text-align: center;
+  font-size: 24px;
+}
+#main-container #fixed-costs .right #admin-bank-info {
+  margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px;
+}
+#main-container #fixed-costs .right #admin-bank-info > * {
+  text-align: center;
+}
+#main-container #fixed-costs .right #admin-bank-info .header {
+  font-size: 44px;
+  font-weight: 600;
+}
+#main-container #fixed-costs .right #admin-bank-info .info {
+  font-size: 30px;
+  margin-top: 16px;
+}
+#main-container #fixed-costs .right #admin-bank-info .qr-code {
+  width: 60%;
+  margin-top: 30px;
+}
+#main-container #fixed-costs > .right > * {
+  background-color: #79E0EE;
+}/*# sourceMappingURL=style.css.map */

@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quản lý thu chi</title>
     <link rel="stylesheet" href="style.css">
-    <script src="./jquery.min.js"></script>
+    <script src="./resources/jquery.min.js"></script>
     <script>
         let api = null
     </script>
@@ -45,12 +45,12 @@
 
             <script>
                 $('#left-side-bar .item').click(function () {
-                    if (!$(this).hasClass('active')) {
-                        $(this).siblings('.item').removeClass('active')
-                        $(this).addClass('active')
-                        let tab_id = $(this).attr('tab-id')
+                    let item = $(this)
+                    if (!item.hasClass('active')) {
+                        item.siblings('.item').removeClass('active')
+                        item.addClass('active')
                         $('#main-container > .content').each(function () {
-                            $(this).toggle(tab_id == $(this).attr('id'))
+                            $(this).toggle($(this).attr('id') == item.attr('tab-id'))
                         })
                     }
                 })
