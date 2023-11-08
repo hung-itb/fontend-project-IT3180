@@ -1,0 +1,26 @@
+
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+button.primary {
+    background-color: #00A9FF;
+	color: black;
+	font-size: 20px;
+	width: fit-content;
+	padding: 6px 32px;
+	border: none;
+	border-radius: 19px;
+    font-weight: 600;
+}
+
+input.primary {
+    padding: 12px;
+	margin-bottom: 16px;
+	border: none;
+	border-radius: 20px;
+	font-size: 16px;
+    width: 100%;
+}

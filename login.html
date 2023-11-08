@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+
+    <link rel="stylesheet" href="login-style.css">
+    <link rel="stylesheet" href="common.css">
+    <script src="./resources/jquery.min.js"></script>
+    <script>
+        let api = null
+    </script>
+</head>
+<body>
+    <div id="top">
+        <div class="left">
+            <span>Accessibility</span>
+        </div>
+
+        <div class="right">
+            <div class="group-name">Nhập môn Công nghệ phần mềm</div>
+        </div>
+    </div>
+
+    <div class="wrap">
+        <div id="content">
+            <form action="" class="login">
+                <div class="header">Welcome!</div>
+                <div class="sub-header">Sign in to continue</div>
+
+                <input type="text" placeholder="@username" class="primary">
+                <input type="text" placeholder="Password" class="primary">
+
+                <div class="button-group">
+                    <button class="login primary">Login</button>
+                    <button class="sign-up primary">Sign up</button>
+                </div>
+            </form>
+
+            <form action="" class="sign-up" style="display: none;">
+                <div class="header">Sign up</div>
+                <div class="sub-header">to start your journey</div>
+
+                <input type="text" placeholder="Your name" class="primary">
+                <input type="text" placeholder="@username" class="primary">
+                <input type="text" placeholder="Password" class="primary">
+                <input type="text" placeholder="Confirm password" class="primary">
+
+                <div class="button-group">
+                    <button class="back-to-login primary">Back to login</button>
+                    <button class="sign-up primary">Sign up</button>
+                </div>
+            </form>
+
+            <script>
+                $('form.login button.sign-up').click(function (e) {
+                    e.preventDefault()
+                    $('form.login').hide()
+                    $('form.sign-up').show()
+                })
+
+                $('form.sign-up button.back-to-login').click(function (e) {
+                    e.preventDefault()
+                    $('form.login').show()
+                    $('form.sign-up').hide()
+                })
+            </script>
+        </div>
+    </div>
+</body>
+</html>

@@ -100,22 +100,7 @@ body {
   padding: 40px;
   border-radius: 36px;
 }
-#main-container #input-transaction .left form input {
-  padding: 12px;
-  margin-bottom: 16px;
-  border: none;
-  border-radius: 20px;
-  font-size: 16px;
-}
 #main-container #input-transaction .left form button {
-  background-color: #00A9FF;
-  color: black;
-  font-size: 23px;
-  width: -moz-fit-content;
-  width: fit-content;
-  padding: 6px 32px;
-  border: none;
-  border-radius: 19px;
   margin-top: 40px;
   margin-left: auto;
 }
