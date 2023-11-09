@@ -16,12 +16,48 @@
 </head>
 
 <body>
+    <script>
+        if (!localStorage.getItem('logined')) {
+            window.location.href = './login.html'
+        }
+    </script>
+
     <nav id="navbar">
-        <div id="nav-left-side"></div>
-        <div id="nav-right-side">
-            <input type="text" placeholder="Message">
-            <img src="./resources/user.png" alt="" id="user-icon">
+        <div id="nav-left-side">
+            <!-- list rooms -->
+            <div class="op-with-room" style="display: none;">
+                <img src="./resources/add.png" alt="" class="add-room">
+                <div class="join-room">
+                    <input type="text">
+                    <div class="img-wrap">
+                        <img src="./resources/right-arrow.png" alt="">
+                    </div>
+                </div>
+            </div>
+
+            <!-- room details -->
+            <div class="room-details">
+                <div class="room-name">
+                    Phòng nào đó
+                </div>
+
+                <div class="switch-room">
+                    Đổi phòng
+                </div>
+            </div>
         </div>
+        <div id="nav-right-side">
+            <input type="text" placeholder="Message" class="message">
+            <img src="./resources/user.png" alt="" id="user-icon">
+            <div class="log-out">Log out</div>
+        </div>
+
+        <script>
+            $('#nav-right-side .log-out').click(() => {
+                localStorage.removeItem('logined')
+                window.location.href = './login.html'
+            })
+        </script>
     </nav>
 
     <div id="main-container">
@@ -357,7 +393,76 @@
                 </div>
             </div>
         </div>
+
+        <!-- Danh sách phòng -->
+        <div id="list-rooms" style="display: none;">
+            <div class="main-rooms">
+                <div class="room">
+                    <div class="title">Phòng 1</div>
+                </div>
+
+                <div class="room">
+                    <div class="title">Phòng 2</div>
+                </div>
+            </div>
+
+            <div class="normal-rooms">
+                <div class="room">
+                    <div class="title">Phòng 3</div>
+                </div>
+
+                <div class="room">
+                    <div class="title">Phòng 4</div>
+                </div>
+
+                <div class="room">
+                    <div class="title">Phòng 5</div>
+                </div>
+
+                <div class="room">
+                    <div class="title">Phòng 6</div>
+                </div>
+                <div class="room">
+                    <div class="title">Phòng 7</div>
+                </div>
+
+                <div class="room">
+                    <div class="title">Phòng 8</div>
+                </div>
+
+                <div class="room">
+                    <div class="title">Phòng 9</div>
+                </div>
+
+                <div class="room">
+                    <div class="title">Phòng 10</div>
+                </div>
+            </div>
+        </div>
     </div>
+
+    <script>
+        function showListRooms() {
+            $('#main-container > *').hide()
+            $('#nav-left-side .room-details').hide()
+            $('#nav-right-side input.message').hide()
+            $('#list-rooms').show()
+            $('#nav-left-side .op-with-room').show()
+        }
+
+        function showRoomDetails() {
+            $('#list-rooms').hide()
+            $('#nav-left-side .op-with-room').hide()
+            $('#left-side-bar').show()
+            $('#input-transaction').show()
+            $('#nav-left-side .room-details').show()
+            $('#nav-right-side input.message').show()
+        }
+
+        showListRooms()
+        $('#list-rooms .room').click(showRoomDetails)
+        $('#nav-left-side .room-details .switch-room').click(showListRooms)
+    </script>
 
     <script src="./main.js"></script>
 </body>

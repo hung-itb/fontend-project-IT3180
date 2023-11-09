@@ -29,8 +29,8 @@
                 <div class="header">Welcome!</div>
                 <div class="sub-header">Sign in to continue</div>
 
-                <input type="text" placeholder="@username" class="primary">
-                <input type="text" placeholder="Password" class="primary">
+                <input type="text" placeholder="@username = 'hung' to login" class="primary username">
+                <input type="text" placeholder="Password = '123' to login" class="primary password">
 
                 <div class="button-group">
                     <button class="login primary">Login</button>
@@ -54,6 +54,14 @@
             </form>
 
             <script>
+                function loginSucess() {
+                    window.location.href = './index.html'
+                }
+
+                if (localStorage.getItem('logined')) {
+                    loginSucess()
+                }
+
                 $('form.login button.sign-up').click(function (e) {
                     e.preventDefault()
                     $('form.login').hide()
@@ -64,6 +72,23 @@
                     e.preventDefault()
                     $('form.login').show()
                     $('form.sign-up').hide()
+                })
+
+                $('form.login button.login').click(function (e) {
+                    e.preventDefault()
+                    let un = $('form.login input.username').val()
+                    let pw = $('form.login input.password').val()
+
+                    if (un == 'hung' && pw == '123') {
+                        localStorage.setItem('logined', true)
+                        loginSucess()
+                    }
+                })
+
+                $('form.sign-up button.sign-up').click(function (e) {
+                    e.preventDefault()
+                    localStorage.setItem('logined', true)
+                    loginSucess()
                 })
             </script>
         </div>
