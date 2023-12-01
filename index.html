@@ -5,17 +5,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quản lý thu chi</title>
-    <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script> -->
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="common.css">
+
+    <!-- <link rel="stylesheet" href="./resources/bootstrap.min.css">
+    <script src="./resources/bootstrap.bundle.min.js"></script> -->
+
+    <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="./common.css">
+
     <script src="./resources/jquery.min.js"></script>
+    <script src="./lib.js"></script>
     <script>
-        let api = null
+        const DEV_MODE = true
     </script>
 </head>
 
 <body>
+    <!-- Redirect to login.html if user haven't logined -->
     <script>
         if (!localStorage.getItem('logined')) {
             window.location.href = './login.html'
@@ -52,6 +57,7 @@
             <div class="log-out">Log out</div>
         </div>
 
+        <!-- Redirect to login.html when user logout -->
         <script>
             $('#nav-right-side .log-out').click(() => {
                 localStorage.removeItem('logined')
@@ -61,6 +67,7 @@
     </nav>
 
     <div id="main-container">
+        <!-- Adjust the container height the first time acess page and when widow resize -->
         <script>
             function resizeMainContainer() {
                 $('#main-container').outerHeight($(window).height() - $('#navbar').outerHeight())
@@ -68,6 +75,7 @@
             resizeMainContainer()
             $(window).resize(resizeMainContainer)
         </script>
+
         <div id="left-side-bar">
             <div class="item active" tab-id="input-transaction">
                 <span>Nhập liệu chi tiêu</span>
@@ -82,6 +90,7 @@
                 <span>Yêu cầu đóng phí</span>
             </div>
 
+            <!-- Switch tab handler -->
             <script>
                 $('#left-side-bar .item').click(function () {
                     let item = $(this)
@@ -108,11 +117,11 @@
                 </form>
 
                 <div id="money-spent">
-                    <div class="line">
+                    <div class="line" id="my-spent">
                         <span class="title">You spent:</span>
                         <span class="value value-green">230k</span>
                     </div>
-                    <div class="line">
+                    <div class="line room-average">
                         <span class="title">Room average:</span>
                         <span class="value">100k</span>
                     </div>
@@ -132,94 +141,7 @@
                     </select>
 
                     <div id="transactions">
-                        <div class="item">
-                            <div class="info">
-                                <div class="product-name">Kem đánh răng</div>
-                                <div class="user-bought">Nguyễn Văn Hùng</div>
-                            </div>
 
-                            <div class="cost">49k</div>
-                        </div>
-                        <div class="item">
-                            <div class="info">
-                                <div class="product-name">Kem đánh răng</div>
-                                <div class="user-bought">Nguyễn Văn Hùng</div>
-                            </div>
-
-                            <div class="cost">49k</div>
-                        </div>
-                        <div class="item">
-                            <div class="info">
-                                <div class="product-name">Kem đánh răng</div>
-                                <div class="user-bought">Nguyễn Văn Hùng</div>
-                            </div>
-
-                            <div class="cost">49k</div>
-                        </div>
-                        <div class="item">
-                            <div class="info">
-                                <div class="product-name">Kem đánh răng</div>
-                                <div class="user-bought">Nguyễn Văn Hùng</div>
-                            </div>
-
-                            <div class="cost">49k</div>
-                        </div>
-                        <div class="item">
-                            <div class="info">
-                                <div class="product-name">Kem đánh răng</div>
-                                <div class="user-bought">Nguyễn Văn Hùng</div>
-                            </div>
-
-                            <div class="cost">49k</div>
-                        </div>
-                        <div class="item">
-                            <div class="info">
-                                <div class="product-name">Kem đánh răng</div>
-                                <div class="user-bought">Nguyễn Văn Hùng</div>
-                            </div>
-
-                            <div class="cost">49k</div>
-                        </div>
-                        <div class="item">
-                            <div class="info">
-                                <div class="product-name">Kem đánh răng</div>
-                                <div class="user-bought">Nguyễn Văn Hùng</div>
-                            </div>
-
-                            <div class="cost">49k</div>
-                        </div>
-                        <div class="item">
-                            <div class="info">
-                                <div class="product-name">Kem đánh răng</div>
-                                <div class="user-bought">Nguyễn Văn Hùng</div>
-                            </div>
-
-                            <div class="cost">49k</div>
-                        </div>
-                        <div class="item">
-                            <div class="info">
-                                <div class="product-name">Kem đánh răng</div>
-                                <div class="user-bought">Nguyễn Văn Hùng</div>
-                            </div>
-
-                            <div class="cost">49k</div>
-                        </div>
-                        <div class="item">
-                            <div class="info">
-                                <div class="product-name">Kem đánh răng</div>
-                                <div class="user-bought">Nguyễn Văn Hùng</div>
-                            </div>
-
-                            <div class="cost">49k</div>
-                        </div>
-                        <div class="item">
-                            <div class="info">
-                                <div class="product-name">Kem đánh răng</div>
-                                <div class="user-bought">Nguyễn Văn Hùng</div>
-                            </div>
-
-                            <div class="cost">49k</div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -228,7 +150,8 @@
         <!-- Chi phí cố định -->
         <div class="content" id="fixed-costs" style="display: none;">
             <div class="left">
-                <div id="list-fixed-costs">
+                <!-- user -->
+                <div id="list-fixed-costs" style="display: none;">
                     <div class="group-top">
                         <div class="header">
                             <div class="header-col">Tên chi phí</div>
@@ -269,6 +192,414 @@
                         <div class="title">Tổng</div>
                         <div class="value">40/50</div>
                     </div>
+                </div>
+
+                <!-- admin -->
+                <div id="list-fixed-costs-admin">
+                    <div class="header">
+                        Danh sách ...
+                    </div>
+
+                    <div class="users">
+                        <div class="line">
+                            <div class="col">
+                                Nguyễn Văn Hùng
+                            </div>
+                            <div class="col">
+                                Tiền điện
+                                <input type="checkbox" name="" id="">
+                            </div>
+                            <div class="col">
+                                Tiền phòng
+                                <input type="checkbox" name="" id="">
+                            </div>
+                            <div class="col">
+                                Tiền nước
+                                <input type="checkbox" name="" id="">
+                            </div>
+                            <div class="col">
+                                Tiền wifi
+                                <input type="checkbox" name="" id="">
+                            </div>
+                            <div class="col">
+                                Tiền hát karaoke
+                                <input type="checkbox" name="" id="">
+                            </div>
+                            <div class="col">
+                                Tiền mừng cưới
+                                <input type="checkbox" name="" id="">
+                            </div>
+                            <div class="col">
+                                Tiền học lại
+                                <input type="checkbox" name="" id="">
+                            </div>
+                            <div class="col">
+                                Tiền đám cưới người yêu cũ
+                                <input type="checkbox" name="" id="">
+                            </div>
+                            <div class="col">
+                                Tiền sửa nhà
+                                <input type="checkbox" name="" id="">
+                            </div>
+                        </div>
+
+                        <div class="line">
+                            <div class="col">
+                                Phạm Văn Phong
+                            </div>
+                            <div class="col">
+                                Tiền điện
+                                <input type="checkbox" name="" id="">
+                            </div>
+                            <div class="col">
+                                Tiền phòng
+                                <input type="checkbox" name="" id="">
+                            </div>
+                            <div class="col">
+                                Tiền nước
+                                <input type="checkbox" name="" id="">
+                            </div>
+                            <div class="col">
+                                Tiền wifi
+                                <input type="checkbox" name="" id="">
+                            </div>
+                            <div class="col">
+                                Tiền hát karaoke
+                                <input type="checkbox" name="" id="">
+                            </div>
+                            <div class="col">
+                                Tiền mừng cưới
+                                <input type="checkbox" name="" id="">
+                            </div>
+                            <div class="col">
+                                Tiền học lại
+                                <input type="checkbox" name="" id="">
+                            </div>
+                            <div class="col">
+                                Tiền đám cưới người yêu cũ
+                                <input type="checkbox" name="" id="">
+                            </div>
+                            <div class="col">
+                                Tiền sửa nhà
+                                <input type="checkbox" name="" id="">
+                            </div>
+                        </div>
+
+                        <div class="line">
+                            <div class="col">
+                                Trần Văn Lực
+                            </div>
+                            <div class="col">
+                                Tiền điện
+                                <input type="checkbox" name="" id="">
+                            </div>
+                            <div class="col">
+                                Tiền phòng
+                                <input type="checkbox" name="" id="">
+                            </div>
+                            <div class="col">
+                                Tiền nước
+                                <input type="checkbox" name="" id="">
+                            </div>
+                            <div class="col">
+                                Tiền wifi
+                                <input type="checkbox" name="" id="">
+                            </div>
+                            <div class="col">
+                                Tiền hát karaoke
+                                <input type="checkbox" name="" id="">
+                            </div>
+                            <div class="col">
+                                Tiền mừng cưới
+                                <input type="checkbox" name="" id="">
+                            </div>
+                            <div class="col">
+                                Tiền học lại
+                                <input type="checkbox" name="" id="">
+                            </div>
+                            <div class="col">
+                                Tiền đám cưới người yêu cũ
+                                <input type="checkbox" name="" id="">
+                            </div>
+                            <div class="col">
+                                Tiền sửa nhà
+                                <input type="checkbox" name="" id="">
+                            </div>
+                        </div>
+
+                        <div class="line">
+                            <div class="col">
+                                Nguyễn Mạnh Hiệp
+                            </div>
+                            <div class="col">
+                                Tiền điện
+                                <input type="checkbox" name="" id="">
+                            </div>
+                            <div class="col">
+                                Tiền phòng
+                                <input type="checkbox" name="" id="">
+                            </div>
+                            <div class="col">
+                                Tiền nước
+                                <input type="checkbox" name="" id="">
+                            </div>
+                            <div class="col">
+                                Tiền wifi
+                                <input type="checkbox" name="" id="">
+                            </div>
+                            <div class="col">
+                                Tiền hát karaoke
+                                <input type="checkbox" name="" id="">
+                            </div>
+                            <div class="col">
+                                Tiền mừng cưới
+                                <input type="checkbox" name="" id="">
+                            </div>
+                            <div class="col">
+                                Tiền học lại
+                                <input type="checkbox" name="" id="">
+                            </div>
+                            <div class="col">
+                                Tiền đám cưới người yêu cũ
+                                <input type="checkbox" name="" id="">
+                            </div>
+                            <div class="col">
+                                Tiền sửa nhà
+                                <input type="checkbox" name="" id="">
+                            </div>
+                        </div>
+
+                        <div class="line">
+                            <div class="col">
+                                Nguyễn Văn Mạnh
+                            </div>
+                            <div class="col">
+                                Tiền điện
+                                <input type="checkbox" name="" id="">
+                            </div>
+                            <div class="col">
+                                Tiền phòng
+                                <input type="checkbox" name="" id="">
+                            </div>
+                            <div class="col">
+                                Tiền nước
+                                <input type="checkbox" name="" id="">
+                            </div>
+                            <div class="col">
+                                Tiền wifi
+                                <input type="checkbox" name="" id="">
+                            </div>
+                            <div class="col">
+                                Tiền hát karaoke
+                                <input type="checkbox" name="" id="">
+                            </div>
+                            <div class="col">
+                                Tiền mừng cưới
+                                <input type="checkbox" name="" id="">
+                            </div>
+                            <div class="col">
+                                Tiền học lại
+                                <input type="checkbox" name="" id="">
+                            </div>
+                            <div class="col">
+                                Tiền đám cưới người yêu cũ
+                                <input type="checkbox" name="" id="">
+                            </div>
+                            <div class="col">
+                                Tiền sửa nhà
+                                <input type="checkbox" name="" id="">
+                            </div>
+                        </div>
+
+                        <div class="line">
+                            <div class="col">
+                                Người yêu Nguyễn Văn Hùng
+                            </div>
+                            <div class="col">
+                                Tiền điện
+                                <input type="checkbox" name="" id="">
+                            </div>
+                            <div class="col">
+                                Tiền phòng
+                                <input type="checkbox" name="" id="">
+                            </div>
+                            <div class="col">
+                                Tiền nước
+                                <input type="checkbox" name="" id="">
+                            </div>
+                            <div class="col">
+                                Tiền wifi
+                                <input type="checkbox" name="" id="">
+                            </div>
+                            <div class="col">
+                                Tiền hát karaoke
+                                <input type="checkbox" name="" id="">
+                            </div>
+                            <div class="col">
+                                Tiền mừng cưới
+                                <input type="checkbox" name="" id="">
+                            </div>
+                            <div class="col">
+                                Tiền học lại
+                                <input type="checkbox" name="" id="">
+                            </div>
+                            <div class="col">
+                                Tiền đám cưới người yêu cũ
+                                <input type="checkbox" name="" id="">
+                            </div>
+                            <div class="col">
+                                Tiền sửa nhà
+                                <input type="checkbox" name="" id="">
+                            </div>
+                        </div>
+
+                        <div class="line">
+                            <div class="col">
+                                Em của Nguyễn Văn Hùng
+                            </div>
+                            <div class="col">
+                                Tiền điện
+                                <input type="checkbox" name="" id="">
+                            </div>
+                            <div class="col">
+                                Tiền phòng
+                                <input type="checkbox" name="" id="">
+                            </div>
+                            <div class="col">
+                                Tiền nước
+                                <input type="checkbox" name="" id="">
+                            </div>
+                            <div class="col">
+                                Tiền wifi
+                                <input type="checkbox" name="" id="">
+                            </div>
+                            <div class="col">
+                                Tiền hát karaoke
+                                <input type="checkbox" name="" id="">
+                            </div>
+                            <div class="col">
+                                Tiền mừng cưới
+                                <input type="checkbox" name="" id="">
+                            </div>
+                            <div class="col">
+                                Tiền học lại
+                                <input type="checkbox" name="" id="">
+                            </div>
+                            <div class="col">
+                                Tiền đám cưới người yêu cũ
+                                <input type="checkbox" name="" id="">
+                            </div>
+                            <div class="col">
+                                Tiền sửa nhà
+                                <input type="checkbox" name="" id="">
+                            </div>
+                        </div>
+
+                        <div class="line">
+                            <div class="col">
+                                Đệ tử Nguyễn Văn Hùng
+                            </div>
+                            <div class="col">
+                                Tiền điện
+                                <input type="checkbox" name="" id="">
+                            </div>
+                            <div class="col">
+                                Tiền phòng
+                                <input type="checkbox" name="" id="">
+                            </div>
+                            <div class="col">
+                                Tiền nước
+                                <input type="checkbox" name="" id="">
+                            </div>
+                            <div class="col">
+                                Tiền wifi
+                                <input type="checkbox" name="" id="">
+                            </div>
+                            <div class="col">
+                                Tiền hát karaoke
+                                <input type="checkbox" name="" id="">
+                            </div>
+                            <div class="col">
+                                Tiền mừng cưới
+                                <input type="checkbox" name="" id="">
+                            </div>
+                            <div class="col">
+                                Tiền học lại
+                                <input type="checkbox" name="" id="">
+                            </div>
+                            <div class="col">
+                                Tiền đám cưới người yêu cũ
+                                <input type="checkbox" name="" id="">
+                            </div>
+                            <div class="col">
+                                Tiền sửa nhà
+                                <input type="checkbox" name="" id="">
+                            </div>
+                        </div>
+
+                        <div class="line">
+                            <div class="col">
+                                Người yêu 2 Nguyễn Văn Hùng
+                            </div>
+                            <div class="col">
+                                Tiền điện
+                                <input type="checkbox" name="" id="">
+                            </div>
+                            <div class="col">
+                                Tiền phòng
+                                <input type="checkbox" name="" id="">
+                            </div>
+                            <div class="col">
+                                Tiền nước
+                                <input type="checkbox" name="" id="">
+                            </div>
+                            <div class="col">
+                                Tiền wifi
+                                <input type="checkbox" name="" id="">
+                            </div>
+                            <div class="col">
+                                Tiền hát karaoke
+                                <input type="checkbox" name="" id="">
+                            </div>
+                            <div class="col">
+                                Tiền mừng cưới
+                                <input type="checkbox" name="" id="">
+                            </div>
+                            <div class="col">
+                                Tiền học lại
+                                <input type="checkbox" name="" id="">
+                            </div>
+                            <div class="col">
+                                Tiền đám cưới người yêu cũ
+                                <input type="checkbox" name="" id="">
+                            </div>
+                            <div class="col">
+                                Tiền sửa nhà
+                                <input type="checkbox" name="" id="">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="total">
+                        <div class="line">
+                            <div class="col">Đã đóng</div>
+                            <div class="col">1/2</div>
+                            <div class="col">1/3</div>
+                            <div class="col">1/4</div>
+                            <div class="col">1/5</div>
+                            <div class="col">1/6</div>
+                            <div class="col">1/7</div>
+                            <div class="col">1/8</div>
+                            <div class="col">1/9</div>
+                            <div class="col">100/1000</div>
+                        </div>
+                    </div>
+
+                    <script>
+                        $('#list-fixed-costs-admin .users').scroll(function () {
+                            $('#list-fixed-costs-admin .total').scrollLeft($(this).scrollLeft())
+                        })
+                    </script>
                 </div>
             </div>
 
@@ -348,7 +679,7 @@
             </div>
         </div>
 
-        <!-- Yêu cầu đóng phí -->
+        <!-- Yêu cầu đóng phí, admin -->
         <div class="content" id="request-payments" style="display: none;">
             <div id="list-request-payments">
                 <div class="list">
@@ -382,6 +713,21 @@
                             <div class="field"><div class="wrap">3. Tiền phòng</div></div>
                             <div class="field"><div class="wrap">15000k</div></div>
                             <div class="field"><div class="wrap">15/11/2023</div></div>
+                        </div>
+                        <div class="row">
+                            <div class="field"><div class="wrap"></div></div>
+                            <div class="field"><div class="wrap"></div></div>
+                            <div class="field"><div class="wrap"></div></div>
+                        </div>
+                        <div class="row">
+                            <div class="field"><div class="wrap"></div></div>
+                            <div class="field"><div class="wrap"></div></div>
+                            <div class="field"><div class="wrap"></div></div>
+                        </div>
+                        <div class="row">
+                            <div class="field"><div class="wrap"></div></div>
+                            <div class="field"><div class="wrap"></div></div>
+                            <div class="field"><div class="wrap"></div></div>
                         </div>
                     </div>
                 </div>
@@ -449,6 +795,7 @@
             $('#list-rooms').show()
             $('#nav-left-side .op-with-room').show()
         }
+        $('#nav-left-side .room-details .switch-room').click(showListRooms)
 
         function showRoomDetails() {
             $('#list-rooms').hide()
@@ -458,10 +805,7 @@
             $('#nav-left-side .room-details').show()
             $('#nav-right-side input.message').show()
         }
-
-        showListRooms()
         $('#list-rooms .room').click(showRoomDetails)
-        $('#nav-left-side .room-details .switch-room').click(showListRooms)
     </script>
 
     <script src="./main.js"></script>
