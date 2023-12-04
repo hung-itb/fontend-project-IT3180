@@ -11,11 +11,16 @@
     <link rel="stylesheet" href="./login-style.css">
     <link rel="stylesheet" href="./common.css">
     <script src="./resources/jquery.min.js"></script>
-    <script>
-        let api = null
-    </script>
+    <script src="./lib.js"></script>
+    <script src="./api.js"></script>
 </head>
 <body>
+    <script>
+        let userId = localStorage.getItem('userId')
+        if (userId) {
+            window.location.href = './index.html'
+        }
+    </script>
     <div id="top">
         <div class="left">
             <span>Accessibility</span>
@@ -45,10 +50,10 @@
                 <div class="header">Sign up</div>
                 <div class="sub-header">to start your journey</div>
 
-                <input type="text" placeholder="Your name" class="primary">
-                <input type="text" placeholder="@username" class="primary">
-                <input type="text" placeholder="Password" class="primary">
-                <input type="text" placeholder="Confirm password" class="primary">
+                <input type="text" placeholder="Your name" class="primary fullname">
+                <input type="text" placeholder="@username" class="primary username">
+                <input type="text" placeholder="Password" class="primary password">
+                <input type="text" placeholder="Confirm password" class="primary cf-password">
 
                 <div class="button-group">
                     <button class="back-to-login primary">Back to login</button>
@@ -59,10 +64,6 @@
             <script>
                 function loginSucess() {
                     window.location.href = './index.html'
-                }
-
-                if (localStorage.getItem('logined')) {
-                    loginSucess()
                 }
 
                 $('form.login button.sign-up').click(function (e) {
@@ -82,16 +83,27 @@
                     let un = $('form.login input.username').val()
                     let pw = $('form.login input.password').val()
 
-                    if (un == 'hung' && pw == '123') {
-                        localStorage.setItem('logined', true)
-                        loginSucess()
-                    }
+                    api.login(un, pw, {
+                        onDone: () => window.location.href = './index.html',
+                        onFailed: (error) => {
+
+                        }
+                    })
                 })
 
                 $('form.sign-up button.sign-up').click(function (e) {
                     e.preventDefault()
-                    localStorage.setItem('logined', true)
-                    loginSucess()
+                    let fullname = $('form.sign-up input.fullname').val()
+                    let un = $('form.sign-up input.username').val()
+                    let pw = $('form.sign-up input.password').val()
+                    let cfpw = $('form.sign-up input.cf-password').val()
+
+                    api.signUp(fullname, un, pw, {
+                        onDone: () => window.location.href = './index.html',
+                        onFailed: (error) => {
+
+                        }
+                    })
                 })
             </script>
         </div>

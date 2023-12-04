@@ -14,17 +14,26 @@
 
     <script src="./resources/jquery.min.js"></script>
     <script src="./lib.js"></script>
+    <script src="./api.js"></script>
+
     <script>
-        const DEV_MODE = true
+        let user = null
+        let currentRoom = null
     </script>
 </head>
 
 <body>
     <!-- Redirect to login.html if user haven't logined -->
     <script>
-        if (!localStorage.getItem('logined')) {
-            window.location.href = './login.html'
-        }
+        let userId = localStorage.getItem('userId')
+        api.getUserInfo(userId, {
+            onDone: (resultUser) => {
+                user = resultUser
+            },
+            onFailed: () => {
+                window.location.href = './login.html'
+            }
+        })
     </script>
 
     <nav id="navbar">
@@ -53,17 +62,20 @@
         </div>
         <div id="nav-right-side">
             <input type="text" placeholder="Message" class="message">
-            <img src="./resources/user.png" alt="" id="user-icon">
+            <img src="./resources/default-avatar.jpg" alt="" id="user-icon">
             <div class="log-out">Log out</div>
-        </div>
 
-        <!-- Redirect to login.html when user logout -->
-        <script>
-            $('#nav-right-side .log-out').click(() => {
-                localStorage.removeItem('logined')
-                window.location.href = './login.html'
-            })
-        </script>
+            <!-- Redirect to login.html when user logout -->
+            <script>
+                $('#nav-right-side img').attr('src', user.avatarUrl || './resources/user-images/default-avatar.jpg')
+                $('#nav-right-side .log-out').click(() => {
+                    api.logout({
+                        onDone: () => { window.location.href = './login.html' },
+                        onFailed: (error) => alert(`ERROR: ${error || 'Có lỗi xảy ra'}!`)
+                    })
+                })
+            </script>
+        </div>
     </nav>
 
     <div id="main-container">
@@ -788,14 +800,6 @@
     </div>
 
     <script>
-        function showListRooms() {
-            $('#main-container > *').hide()
-            $('#nav-left-side .room-details').hide()
-            $('#nav-right-side input.message').hide()
-            $('#list-rooms').show()
-            $('#nav-left-side .op-with-room').show()
-        }
-        $('#nav-left-side .room-details .switch-room').click(showListRooms)
 
         function showRoomDetails() {
             $('#list-rooms').hide()
@@ -804,8 +808,59 @@
             $('#input-transaction').show()
             $('#nav-left-side .room-details').show()
             $('#nav-right-side input.message').show()
+
+            let room = currentRoom
+            let isAdmin = (room.adminUserId == user.id)
         }
-        $('#list-rooms .room').click(showRoomDetails)
+        
+        function loadListRoomViews(rooms) {
+            $('#list-rooms .main-rooms').html('')
+            for (let i = 0; i < rooms.length && i < 2; i++) {
+                let roomHtml = (`
+                    <div class="room">
+                        <div class="title">${rooms[i].roomName}</div>
+                    </div>
+                `)
+                let jRoom = $(roomHtml)
+                $('#list-rooms .main-rooms').append(jRoom)
+                jRoom.click(() => {
+                    currentRoom = rooms[i]
+                    showRoomDetails()
+                })
+            }
+
+            $('#list-rooms .normal-rooms').html('')
+            for (let i = 2; i < rooms.length; i++) {
+                let roomHtml = (`
+                    <div class="room">
+                        <div class="title">${rooms[i].roomName}</div>
+                    </div>
+                `)
+                let jRoom = $(roomHtml)
+                $('#list-rooms .normal-rooms').append(jRoom)
+                jRoom.click(() => {
+                    currentRoom = rooms[i]
+                    showRoomDetails()
+                })
+            }
+        }
+
+        function showListRooms() {
+            $('#main-container > *').hide()
+            $('#nav-left-side .room-details').hide()
+            $('#nav-right-side input.message').hide()
+            $('#list-rooms').show()
+            $('#nav-left-side .op-with-room').show()
+
+            api.getRoomsOfUser({
+                onDone: loadListRoomViews,
+                onFailed: () => {
+                    alert('Có lỗi xảy ra!')
+                }
+            })
+        }
+        $('#nav-left-side .room-details .switch-room').click(showListRooms)
+        showListRooms()
     </script>
 
     <script src="./main.js"></script>
