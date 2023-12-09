@@ -67,7 +67,9 @@
 
             <!-- Redirect to login.html when user logout -->
             <script>
-                $('#nav-right-side img').attr('src', user.avatarUrl || './resources/user-images/default-avatar.jpg')
+                let jImg = $('#nav-right-side img')
+                jImg.width(jImg.height())
+                jImg.attr('src', user.avatarUrl || './resources/user-images/default-avatar.jpg')
                 $('#nav-right-side .log-out').click(() => {
                     api.logout({
                         onDone: () => { window.location.href = './login.html' },
@@ -121,10 +123,11 @@
         <div class="content" id="input-transaction">
             <div class="left">
                 <form action="">
-                    <input type="text" placeholder="@productname" class="primary">
-                    <input type="text" placeholder="@price" class="primary">
-                    <input type="text" placeholder="@dd/mm/yy" class="primary">
+                    <input type="text" placeholder="@productname" class="primary" name="name">
+                    <input type="text" placeholder="@price" class="primary" name="price">
+                    <input type="text" placeholder="@dd/mm/yy" class="primary" name="date">
 
+                    <span class="errors"></span>
                     <button class="primary">Submit</button>
                 </form>
 
@@ -143,9 +146,9 @@
             <div class="right">
                 <div id="list-transactions">
                     <div class="time-control">
-                        <img src="./resources/prev.png" alt="" class="prev-month">
+                        <img src="./resources/prev.png" alt="" class="prev-month time-control-button">
                         <div class="time">November</div>
-                        <img src="./resources/next.png" alt="" class="next-month">
+                        <img src="./resources/next.png" alt="" class="next-month time-control-button">
                     </div>
                     <select class="user-selection">
                         <option value="">Mọi người</option>
@@ -799,6 +802,15 @@
         </div>
     </div>
 
+    <div class="pop-up-wrap" style="display: none;">
+        <div class="pop-up">
+            
+            <div class="button-group">
+                <button class="close primary">Đóng</button>
+            </div>
+        </div>
+    </div>
+
     <script>
 
         function showRoomDetails() {
@@ -809,8 +821,11 @@
             $('#nav-left-side .room-details').show()
             $('#nav-right-side input.message').show()
 
-            let room = currentRoom
-            let isAdmin = (room.adminUserId == user.id)
+            $('#navbar .room-details .room-name').html(currentRoom.roomName)
+            $('#left-side-bar .item[tab-id="input-transaction"]').click()
+
+            let isAdmin = (user.id == currentRoom.adminUserId)
+            $('#left-side-bar .item[tab-id="request-payments"]').toggle(isAdmin)
         }
         
         function loadListRoomViews(rooms) {

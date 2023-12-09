@@ -14,6 +14,10 @@ button.primary {
   border: none;
   border-radius: 19px;
   font-weight: 600;
+  cursor: pointer;
+}
+button.primary:hover {
+  background-color: #0289cc;
 }
 
 input.primary {
@@ -23,4 +27,33 @@ input.primary {
   border-radius: 20px;
   font-size: 16px;
   width: 100%;
+}
+
+.pop-up-wrap {
+  position: fixed;
+  background-color: rgba(0, 0, 0, 0.3);
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+}
+.pop-up-wrap .pop-up {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  max-width: 100%;
+  max-height: 100%;
+  overflow-y: auto;
+  padding: 40px;
+  padding-bottom: 100px;
+}
+.pop-up-wrap .pop-up .button-group {
+  position: absolute;
+  bottom: 24px;
+  right: 24px;
+}
+.pop-up-wrap .pop-up .button-group button {
+  margin-left: 12px;
 }/*# sourceMappingURL=common.css.map */

@@ -21,7 +21,7 @@ function FakeAPI() {
     let MAX_NUM_MEMBERS_PER_ROOM = 16
     let NUM_ROOMS = 80
     let MAX_NUM_JOIN_ROOM_REQUESTS_PER_USER = 2
-    let MAX_NUM_SMALL_TRANSCATION_PER_USER_PER_ROOM = 30
+    let MAX_NUM_SMALL_TRANSCATION_PER_USER_PER_ROOM = 100
     let MAX_NUM_FEE_WITH_DEADLINE = 72
 
     let random = RandomFunction()
@@ -40,22 +40,10 @@ function FakeAPI() {
         for (let index of indices) result.push(arr[index])
         return result
     }
-    let d1SmallerThanD2 = (date1, date2) => {
-        let [d1, m1, y1] = date1.split('/').map(i => Number(i))
-        let [d2, m2, y2] = date2.split('/').map(i => Number(i))
-        if (y1 < y2) return true
-        if (y2 < y1) return false
-        if (m1 < m2) return true
-        if (m2 < m1) return false
-        if (d1 < d2) return true
-        if (d2 < d1) return false
-        // date1 == date2, xử lý riêng
-        return false
-    }
     let randomDate = (after = null) => {
         if (!after) {
             let r = `${randInt(1, 28)}/${randInt(1, 12)}/${randInt(2020, 2023)}`
-            while (d1SmallerThanD2('12/4/2023', r)) {
+            while (CustomDateManager.d1SmallerThanD2('12/4/2023', r)) {
                 r = `${randInt(1, 28)}/${randInt(1, 12)}/${randInt(2020, 2023)}`
             }
             return r
@@ -135,11 +123,17 @@ function FakeAPI() {
             let adminUserId = sample(usersInRoom).id
 
             for (let user of usersInRoom) {
+                let status = (adminUserId == user.id) ? 1 : randInt(0, 1)
+                let joinDate = randomDate()
+                let leaveDate = null
+                if (status == 0) {
+                    leaveDate = randomDate(joinDate)
+                }
                 room_user.push({
                     userId: user.id,
                     roomId: id,
-                    status: (adminUserId == user.id) ? 1 : randInt(0, 1),
-                    joinDate: randomDate()
+                    status,
+                    joinDate, leaveDate
                 })
             }
             let roomName = [sample(roomNames1), sample(roomNames2), '-', randInt(1, 9)].join(' ')
@@ -249,7 +243,8 @@ function FakeAPI() {
                 feesWithDealine.push({
                     id,
                     name, deadline,
-                    roomId
+                    roomId,
+                    cost: randInt(20, 60)*50
                 })
             }
         }
@@ -268,15 +263,69 @@ function FakeAPI() {
             findUserByUsername: (un) => users.find(user => user.username == un),
             findUserById: (id) => users.find(user => user.id == id),
             saveUser: (user) => users.push(user),
-            getRoomIdsOfUserId: (uid) => [...new Set(room_user.filter(({userId}) => userId == uid).map(({roomId}) => roomId))]
+            getRoomIdsOfUserId: (uid) => [...new Set(room_user.filter(({userId}) => userId == uid).map(({roomId}) => roomId))],
+            getUsersOfRoomId: (rid) => {
+                let userIds = new Set(room_user.filter(({roomId, status}) => roomId == rid && status == 1).map(({userId}) => userId))
+                return users.filter(({id}) => userIds.has(id))
+            }
         }
     })()
 
     let roomDAO = (() => {
         return {
             getRoomsOfUserId: (uid) => {
-                let roomIdsOfUser = new Set(room_user.filter(({userId}) => uid == userId).map(({roomId}) => roomId))
+                let roomIdsOfUser = new Set(room_user.filter(({userId, status}) => uid == userId && status == 1).map(({roomId}) => roomId))
                 return rooms.filter(room => roomIdsOfUser.has(room.id))
+            },
+            getNumUsersEarlyThisMonth: (rid) => {
+                let earlyThisMonth = `${1}/${new Date().getMonth() + 1}/${new Date().getFullYear()}`
+                return room_user.filter(({userId, roomId, status, leaveDate}) => {
+                    return roomId == rid
+                    && (status == 1 || !CustomDateManager.d1SmallerThanD2(leaveDate, earlyThisMonth))
+                }).length
+            }
+        }
+    })()
+
+    let smallTransactionsDAO = (() => {
+        return {
+            getSmallTransaction: (rid, month, year, specificUserId) => {
+                month = Number(month)
+                year = Number(year)
+                return smallTransactions.filter(({userId, roomId, transactionDate}) => {
+                    let [d, m, y] = transactionDate.split('/').map(x => Number(x))
+                    return (roomId == rid) && (month == m) && (year == y)
+                        && (specificUserId ? (specificUserId == userId) : true)
+                })
+            },
+            createSmallTransaction: (itemName, price, date, roomId, userId) => {
+                let newItem = {
+                    id: randomId(),
+                    transactionDate: date,
+                    userId, roomId,
+                    itemName, price, note: ''
+                }
+                smallTransactions.push(newItem)
+                return newItem
+            },
+            update: (itemId, itemName, price, date) => {
+                let item = smallTransactions.find(({id}) => id == itemId)
+                item.itemName = itemName
+                item.price = price
+                item.transactionDate = date
+                return item
+            },
+            delete: (itemId) => {
+                let index = smallTransactions.findIndex(({id}) => id == itemId)
+                smallTransactions.splice(index, 1)
+            }
+        }
+    })()
+
+    let feesWithDealineDAO = (() => {
+        return {
+            getFeesWithDeadline: (rid) => {
+                return feesWithDealine.filter(({roomId}) => roomId == rid)
             }
         }
     })()
@@ -329,6 +378,40 @@ function FakeAPI() {
         getRoomsOfUser: ({onDone, onFailed}) => {
             let userId = localStorage.getItem('userId')
             onDone(roomDAO.getRoomsOfUserId(userId))
+        },
+        getSmallTransaction: (rid, month, year, specificUserId, {onDone, onFailed}) => {
+            onDone(smallTransactionsDAO.getSmallTransaction(rid, month, year, specificUserId))
+        },
+        createSmallTransaction: (name, price, date, roomId, {onDone}) => {
+            let uid = localStorage.getItem('userId')
+            onDone(smallTransactionsDAO.createSmallTransaction(name, price, date, roomId, uid))
+        },
+        updateSmallTransaction: (itemId, name, price, date, {onDone}) => {
+            let uid = localStorage.getItem('userId')
+            onDone(smallTransactionsDAO.update(itemId, name, price, date))
+        },
+        deleteSmallTransaction: (itemId, {onDone}) => {
+            let uid = localStorage.getItem('userId')
+            smallTransactionsDAO.delete(itemId)
+            onDone()
+        },
+        getUsersOfRoomId: (roomId, {onDone, onFailed}) => {
+            onDone(userDAO.getUsersOfRoomId(roomId))
+        },
+        getQuickStatisticInfo: (rid, {onDone, onFailed}) => {
+            let uid = localStorage.getItem('userId')
+            let smTrans = smallTransactionsDAO.getSmallTransaction(rid, new Date().getMonth() + 1, new Date().getFullYear(), null)
+            let roomSpent = smTrans.reduce((pv, {price}) => pv + Number(price), 0)
+            let mySmTrans = smTrans.filter(({userId}) => userId == uid)
+            let mySpent = mySmTrans.reduce((pv, {price}) => pv + Number(price), 0)
+            let numUsers = roomDAO.getNumUsersEarlyThisMonth(rid)
+            onDone({
+                mySpent,
+                roomAverage: Math.round(roomSpent/numUsers)
+            })
+        },
+        getFeesWithDeadline: (rid, {onDone}) => {
+            onDone(feesWithDealineDAO.getFeesWithDeadline(rid))
         }
     }
 }
@@ -342,4 +425,4 @@ function TrueAPI() {
     }
 }
 
-api = (DEV_MODE ? FakeAPI: TrueAPI)()
+api = FakeAPI()
