@@ -49,10 +49,10 @@ function addFloatElement(e, html, option = null) {
         option.script(floatElement)
     }
 
-    if (option.displayCondition == 'always') {   
+    if (option.displayCondition == 'always') {
         e.appendChild(floatElement)
     }
-    if (option.displayCondition == 'hover') {   
+    if (option.displayCondition == 'hover') {
         e.onmouseenter = () => {
             e.appendChild(floatElement)
         }
@@ -68,7 +68,7 @@ function addFloatElement(e, html, option = null) {
         }
         floatElement.remove()
     }
-    
+
     return removeFloatElement
 }
 
@@ -157,7 +157,7 @@ let TypeManager = (() => {
                     // Tháng 2 có hươn 29 ngày chắc chắn sai
                     if (d >= 30) return false
                     // Tháng 2 này có 29 ngày, mà không phải năm nhuận thì sai
-                    if (!(y%4 == 0 && y%100 != 0)) return false
+                    if (!(y % 4 == 0 && y % 100 != 0)) return false
                 }
                 // TH2: Tháng này chắc chắn khác tháng 2 có 30, hoặc 31 ngày
                 else {
@@ -173,3 +173,70 @@ let TypeManager = (() => {
     }
     return a
 })()
+
+function FormManager(jForm, option) {
+    // Require types: notEmpty, isNonNegativeInt, isMyCustomDate
+    let defaultOption = {
+        fieldNamesAndRequires: [], // {name: 'field name', requires: 'not empty' || ['not empty', ..., (val, errors) => {}]}
+        onSubmit: () => {}
+    }
+    if (option) {
+        for (let key in option) {
+            defaultOption[key] = option[key]
+        }
+    }
+    option = defaultOption
+
+    jForm.find('button.submit').click((e) => {
+        e.preventDefault()
+        jForm.find('.errors').html('')
+        let formData = {}
+        let errors = []
+        jForm.find('input').each((_, ip) => formData[$(ip).attr('name')] = $(ip).val())
+        for (let { name, requires } of option.fieldNamesAndRequires) {
+            if (typeof requires == 'string') requires = [requires]
+            let val = formData[name]
+            let valValid = true
+            for (let req of requires) {
+                if (!valValid) break
+                switch (req) {
+                    case 'notEmpty':
+                        if (TypeManager.isEmpty(val)) {
+                            errors.push(`Không được để trống trường thông tin "${name}"`)
+                            valValid = false
+                        }
+                        break;
+                    case 'isNonNegativeInt':
+                        if (!TypeManager.isPositiveInterger(val)) {
+                            errors.push(`Giá trị của trường thông tin "${name}" phải là số nguyên không âm`)
+                            valValid = false
+                        } else {
+                            formData[name] = String(Math.round(Number(val)))
+                        }
+                        break;
+                    case 'isMyCustomDate':
+                        if (!TypeManager.isMyCustomDate(val)) {
+                            errors.push(`Giá trị của trường thông tin "${name}" phải là thời gian hợp lệ có dạng dd/mm/yyyy`)
+                            valValid = false
+                        }
+                        break;
+                }
+                if (typeof req == 'function') {
+                    valValid = req(val, errors)
+                }
+            }
+        }
+
+        if (errors.length == 0) {
+            jForm.find('input').val('')
+            jForm.find('.errors').html('')
+            option.onSubmit(formData)
+        }
+
+        else {
+            jForm.find('.errors').html(
+                errors.map(err => `* <span class="errors">${err}</span>`).join('<br>')
+            )
+        }
+    })
+}

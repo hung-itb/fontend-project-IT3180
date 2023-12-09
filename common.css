@@ -29,6 +29,10 @@ input.primary {
   width: 100%;
 }
 
+form .errors {
+  color: red;
+}
+
 .pop-up-wrap {
   position: fixed;
   background-color: rgba(0, 0, 0, 0.3);

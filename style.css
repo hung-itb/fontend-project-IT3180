@@ -169,9 +169,6 @@ body {
   padding: 40px;
   border-radius: 36px;
 }
-#main-container #input-transaction .left form .errors {
-  color: red;
-}
 #main-container #input-transaction .left form button {
   margin-top: 40px;
   margin-left: auto;

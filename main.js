@@ -4,7 +4,7 @@ function loadInputTransactionView() {
 
     function reloadQuickInfo() {
         api.getQuickStatisticInfo(currentRoom.id, {
-            onDone: ({mySpent, roomAverage}) => {
+            onDone: ({ mySpent, roomAverage }) => {
                 mySpent = Number(mySpent), roomAverage = Number(roomAverage)
                 let jElem = jCont.find('.left #money-spent')
                 jElem.find('#my-spent .value')
@@ -17,32 +17,21 @@ function loadInputTransactionView() {
         })
     }
 
-    function errorsOfSMTransactionInput(name, price, date) {
-        let errors = []
-        if (TypeManager.isEmpty(name)) errors.push('Không được để trống trường "Tên sản phẩm"')
-        if (TypeManager.isEmpty(price)) errors.push('Không được để trống trường "Giá sản phẩm"')
-        else if (!TypeManager.isPositiveInterger(price)) errors.push('Giá trị của trường price phải là số nguyên không âm')
-        if (TypeManager.isEmpty(date)) errors.push('Không được để trống trường "Ngày giao dịch"')
-        else if (!TypeManager.isMyCustomDate(date)) errors.push('Trường thời gian giao dịch phải là thời gian hợp lệ có dạng dd/mm/yyyy')
-        else {
-            let [d, m, y] = date.split('/').map(x => Number(x))
-            let now = new Date()
-            let nowMonth = now.getMonth() + 1
-            let nowDay = now.getDate()
-            let nowYear = now.getFullYear()
-            if (m == nowMonth && y == nowYear) {
-                newItemInThisMonth = true
-            }
+    function checkSmallTransactionDate(date) {
+        let error = null
+        let [d, m, y] = date.split('/').map(x => Number(x))
+        let now = new Date()
+        let nowMonth = now.getMonth() + 1
+        let nowYear = now.getFullYear()
 
-            let weekDistance = y*12 + m - nowYear*12 - nowMonth
-            if (weekDistance < 0) {
-                errors.push('Không thể thêm giao dịch vào các tháng trước đó')
-            }
-            else if (weekDistance > 3) {
-                errors.push('Chỉ được thêm giao dịch vào tối đa 3 tháng tương lai')
-            }
+        let weekDistance = y * 12 + m - nowYear * 12 - nowMonth
+        if (weekDistance < 0) {
+            error = 'Không thể thêm giao dịch vào các tháng trước đó, vui lòng sửa lại ngày giao dịch'
         }
-        return errors
+        else if (weekDistance > 3) {
+            error = 'Chỉ được thêm giao dịch vào tối đa 3 tháng tương lai, vui lòng sửa lại ngày giao dịch'
+        }
+        return error
     }
 
     function appendNewItemToListItem(newItem) {
@@ -66,19 +55,24 @@ function loadInputTransactionView() {
     // Add small transaction
     let jAddItemForm = jCont.find('.left form')
     jAddItemForm.find('input').val('')
-    jAddItemForm.find('button').click(function (e) {
-        e.preventDefault()
-        jAddItemForm.find('.errors').html('')
-        let name = jAddItemForm.find('input[name="name"]').val()
-        let price = jAddItemForm.find('input[name="price"]').val()
-        let date = jAddItemForm.find('input[name="date"]').val()
-
-        let errors = errorsOfSMTransactionInput(name, price, date)
-
-        if (errors.length == 0) {
+    jAddItemForm.find('.errors').html('')
+    FormManager(jAddItemForm, {
+        fieldNamesAndRequires: [
+            { name: 'name', requires: 'notEmpty' },
+            { name: 'price', requires: ['notEmpty', 'isNonNegativeInt'] },
+            {
+                name: 'date', requires: ['notEmpty', 'isMyCustomDate', (val, errors) => {
+                    let error = checkSmallTransactionDate(val)
+                    if (!error) return true
+                    errors.push(error)
+                    return false
+                }]
+            }
+        ],
+        onSubmit: (formData) => {
             let newItemInListTrasnView = false
             let newItemInThisMonth = false
-            let [d, m, y] = date.split('/').map(x => Number(x))
+            let [d, m, y] = formData['date'].split('/').map(x => Number(x))
             if (m == currMonth && y == currYear) {
                 newItemInListTrasnView = true
             }
@@ -89,8 +83,13 @@ function loadInputTransactionView() {
                 newItemInThisMonth = true
             }
 
+            let name = formData.name
+            let price = formData.price
+            let date = formData.date
+
             api.createSmallTransaction(name, price, date, currentRoom.id, {
                 onDone: (newItem) => {
+                    jAddItemForm.find('.errors').html('')
                     jAddItemForm.find('input').val('')
                     if (newItemInThisMonth) reloadQuickInfo()
                     if (!newItemInListTrasnView) return
@@ -99,27 +98,21 @@ function loadInputTransactionView() {
                 }
             })
         }
-
-        else {
-            jAddItemForm.find('.errors').html(
-                errors.map(err => `* <span class="errors">${err}</span>`).join('<br>')
-            )
-        }
     })
 
     jCont.find('.user-selection').html('')
     api.getUsersOfRoomId(currentRoom.id, {
         onDone: (users) => {
             jCont.find('.user-selection')
-            .html(
-                `<option value="">Mọi người</option>`
-                + users.map(({fullname, id}) => `<option value="${id}">${fullname}</option>`).join('')
-            )
-            .on('change', loadListTransaction)
+                .html(
+                    `<option value="">Mọi người</option>`
+                    + users.map(({ fullname, id }) => `<option value="${id}">${fullname}</option>`).join('')
+                )
+                .on('change', loadListTransaction)
         }
     })
 
-    function createItemInListTransaction({id, itemName, userId, price, transactionDate}) {
+    function createItemInListTransaction({ id, itemName, userId, price, transactionDate }) {
         let editable = (userId == user.id) && (transactionDate.split('/')[1] == new Date().getMonth() + 1)
         let itemHtml = (`<div class="item">
             <div class="info">
@@ -156,62 +149,63 @@ function loadInputTransactionView() {
                 // Adjust float element position when item
                 // is first or last item
                 $(parent)
-                .on('mouseenter', () => {
-                    let isFirst = (jElem.prev().length == 0)
-                    let isLast = (jElem.next().length == 0)
-                    if (isFirst) {
-                        $(fE).css({
-                            top: '12px',
-                            bottom: 'unset',
-                            transform: 'unset'
-                        })
-                    }
+                    .on('mouseenter', () => {
+                        let isFirst = (jElem.prev().length == 0)
+                        let isLast = (jElem.next().length == 0)
+                        if (isFirst) {
+                            $(fE).css({
+                                top: '12px',
+                                bottom: 'unset',
+                                transform: 'unset'
+                            })
+                        }
 
-                    else if (isLast) {
+                        else if (isLast) {
+                            $(fE).css({
+                                top: 'unset',
+                                bottom: '12px',
+                                transform: 'unset'
+                            })
+                        }
+                    })
+                    .on('mouseout', function () {
                         $(fE).css({
                             top: 'unset',
-                            bottom: '12px',
-                            transform: 'unset'
+                            bottom: '50%',
+                            transform: 'translateY(50%)'
                         })
-                    }
-                })
-                .on('mouseout', function () {
-                    $(fE).css({
-                        top: 'unset',
-                        bottom: '50%',
-                        transform: 'translateY(50%)'
                     })
-                })
 
                 // Css float element
                 $(fE).find('.op')
-                .css({
-                    width: '120px',
-                    padding: '12px',
-                    cursor: 'pointer'
-                })
-                .on('mouseenter', function () {
-                    $(this).css({
-                        'background-color': '#ccc'
+                    .css({
+                        width: '120px',
+                        padding: '12px',
+                        cursor: 'pointer'
                     })
-                })
-                .on('mouseout', function () {
-                    $(this).css({
-                        'background-color': 'white'
+                    .on('mouseenter', function () {
+                        $(this).css({
+                            'background-color': '#ccc'
+                        })
                     })
-                })
+                    .on('mouseout', function () {
+                        $(this).css({
+                            'background-color': 'white'
+                        })
+                    })
 
                 // Operations
                 $(fE).find('.edit').click(function () {
                     fE.style.display = 'none'
                     setTimeout(() => fE.style.display = 'block', 100)
 
-                    let popupHtml = `
+                    let popupHtml = `<form>
                         <input type="text" placeholder="@productname" class="primary" name="name">
                         <input type="text" placeholder="@price" class="primary" name="price">
                         <input type="text" placeholder="@dd/mm/yy" class="primary" name="date">
                         <span class="errors"></span>
-                    `
+                        <button class="submit" style="display = none;"></button>
+                    </form>`
 
                     popUp(popupHtml, {
                         hideCloseButton: true,
@@ -222,23 +216,30 @@ function loadInputTransactionView() {
                             jPopUp.find('input[name="name"]').val(itemName)
                             jPopUp.find('input[name="price"]').val(price)
                             jPopUp.find('input[name="date"]').val(transactionDate)
-                            jPopUp.find('.errors').css('color', 'red')
                             jPopUp.find('input').css({
                                 'border': '2px solid',
                                 'width': '400px'
                             })
-                        },
-                        buttonHtmls: ['Hủy thay đổi', 'Lưu thay đổi'],
-                        buttonClickHandlers: [
-                            (jPopUp) => jPopUp.remove(),
-                            (jPopUp) => {
-                                let name = jPopUp.find('input[name="name"]').val()
-                                let price = jPopUp.find('input[name="price"]').val()
-                                let date = jPopUp.find('input[name="date"]').val()
 
-                                let errors = errorsOfSMTransactionInput(name, price, date)
-                                if (errors.length == 0) {
-                                    api.updateSmallTransaction(id, itemName, price, date, {
+                            FormManager(jPopUp.find('form'), {
+                                fieldNamesAndRequires: [
+                                    { name: 'name', requires: 'notEmpty' },
+                                    { name: 'price', requires: ['notEmpty', 'isNonNegativeInt'] },
+                                    {
+                                        name: 'date', requires: ['notEmpty', 'isMyCustomDate', (val, errors) => {
+                                            let error = checkSmallTransactionDate(val)
+                                            if (!error) return true
+                                            errors.push(error)
+                                            return false
+                                        }]
+                                    }
+                                ],
+                                onSubmit: (formData) => {
+                                    let name = formData.name
+                                    let price = formData.price
+                                    let date = formData.date
+                                    
+                                    api.updateSmallTransaction(id, name, price, date, {
                                         onDone: (newItem) => {
                                             jPopUp.find('input').val('')
                                             jPopUp.remove()
@@ -247,12 +248,13 @@ function loadInputTransactionView() {
                                             reloadQuickInfo()
                                         }
                                     })
-                                } else {
-                                    jPopUp.find('.errors').html(
-                                        '<br>' + errors.map(err => `* <span class="errors">${err}</span>`).join('<br>')
-                                    )
                                 }
-                            }
+                            })
+                        },
+                        buttonHtmls: ['Hủy thay đổi', 'Lưu thay đổi'],
+                        buttonClickHandlers: [
+                            (jPopUp) => jPopUp.remove(),
+                            (jPopUp) => jPopUp.find('form button.submit').click()
                         ]
                     })
                 })
@@ -320,7 +322,7 @@ function loadListRoomMembersView() {
     let jCont = $('#room-members')
     jCont.find('.list-members > .item').remove()
 
-    function createMemberAsLine({fullname, avatarUrl, phoneNumber, bankNumber, bankName}) {
+    function createMemberAsLine({ fullname, avatarUrl, phoneNumber, bankNumber, bankName }) {
         let html = `
             <div class="item">
                 <img src="${avatarUrl}" alt="">
@@ -361,7 +363,7 @@ function loadFixedCostsView() {
     jCont.find('#list-fixed-costs').toggle(!isAdmin)
 
     function loadMemberView() {
-        
+
     }
 
     function loadAdminView() {
@@ -386,7 +388,7 @@ function loadRequestPaymentsView() {
                 fees.push({})
             }
 
-            fees.forEach(({name, deadline, cost}, i) => {
+            fees.forEach(({ name, deadline, cost }, i) => {
                 name = name ? `${i + 1}. ${name}` : ''
                 cost = cost ? cost + 'k' : ''
                 let itemHtml = `<div class="row">
