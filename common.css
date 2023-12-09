@@ -60,4 +60,7 @@ form .errors {
 }
 .pop-up-wrap .pop-up .button-group button {
   margin-left: 12px;
+}
+.pop-up-wrap .pop-up form {
+  width: 600px;
 }/*# sourceMappingURL=common.css.map */

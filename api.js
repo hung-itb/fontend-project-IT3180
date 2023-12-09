@@ -273,6 +273,24 @@ function FakeAPI() {
 
     let roomDAO = (() => {
         return {
+            createRoom: (name, address, adminUserId) => {
+                let newRoom = {
+                    id: randomId(),
+                    roomName: name,
+                    adminUserId,
+                    address
+                }
+                rooms.push(newRoom)
+
+                room_user.push({
+                    userId: adminUserId,
+                    roomId: newRoom.id,
+                    status: 1,
+                    joinDate: CustomDateManager.toCustomDate(new Date())
+                })
+
+                return newRoom
+            },
             getRoomsOfUserId: (uid) => {
                 let roomIdsOfUser = new Set(room_user.filter(({userId, status}) => uid == userId && status == 1).map(({roomId}) => roomId))
                 return rooms.filter(room => roomIdsOfUser.has(room.id))
@@ -412,6 +430,10 @@ function FakeAPI() {
         },
         getFeesWithDeadline: (rid, {onDone}) => {
             onDone(feesWithDealineDAO.getFeesWithDeadline(rid))
+        },
+        createRoom: (name, address, {onDone}) => {
+            let uid = localStorage.getItem('userId')
+            onDone(roomDAO.createRoom(name, address, uid))
         }
     }
 }

@@ -130,6 +130,12 @@ let CustomDateManager = (() => {
             if (d2 < d1) return false
             // date1 == date2, xử lý riêng
             return false
+        },
+        toCustomDate: (date) => {
+            let d = date.getDate()
+            let m = date.getMonth() + 1
+            let y = date.getFullYear()
+            return `${d}/${m}/${y}`
         }
     }
 })()

@@ -204,7 +204,7 @@ function loadInputTransactionView() {
                         <input type="text" placeholder="@price" class="primary" name="price">
                         <input type="text" placeholder="@dd/mm/yy" class="primary" name="date">
                         <span class="errors"></span>
-                        <button class="submit" style="display = none;"></button>
+                        <button class="submit" style="display: none;"></button>
                     </form>`
 
                     popUp(popupHtml, {
@@ -216,10 +216,6 @@ function loadInputTransactionView() {
                             jPopUp.find('input[name="name"]').val(itemName)
                             jPopUp.find('input[name="price"]').val(price)
                             jPopUp.find('input[name="date"]').val(transactionDate)
-                            jPopUp.find('input').css({
-                                'border': '2px solid',
-                                'width': '400px'
-                            })
 
                             FormManager(jPopUp.find('form'), {
                                 fieldNamesAndRequires: [
@@ -255,7 +251,10 @@ function loadInputTransactionView() {
                         buttonClickHandlers: [
                             (jPopUp) => jPopUp.remove(),
                             (jPopUp) => jPopUp.find('form button.submit').click()
-                        ]
+                        ],
+                        style: {
+                            'background-color': '#79E0EE'
+                        }
                     })
                 })
 
@@ -394,7 +393,7 @@ function loadRequestPaymentsView() {
                 let itemHtml = `<div class="row">
                     <div class="field"><div class="wrap">${name}</div></div>
                     <div class="field"><div class="wrap">${cost}</div></div>
-                    <div class="field"><div class="wrap">${deadline}</div></div>
+                    <div class="field"><div class="wrap">${deadline || ''}</div></div>
                 </div>`
                 jItems.append(itemHtml)
             })

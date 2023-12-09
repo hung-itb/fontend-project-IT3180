@@ -33,6 +33,11 @@ body {
 #navbar #nav-left-side .op-with-room .add-room {
   height: 50px;
   margin-right: 40px;
+  cursor: pointer;
+  border-radius: 50%;
+}
+#navbar #nav-left-side .op-with-room .add-room:hover {
+  background-color: #79E0EE;
 }
 #navbar #nav-left-side .op-with-room .join-room {
   position: relative;
@@ -46,6 +51,7 @@ body {
   font-size: 20px;
   font-weight: 600;
   width: 250px;
+  padding-right: 72px;
 }
 #navbar #nav-left-side .op-with-room .join-room .img-wrap {
   position: absolute;
@@ -58,6 +64,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
 }
 #navbar #nav-left-side .op-with-room .join-room .img-wrap img {
   height: 60%;

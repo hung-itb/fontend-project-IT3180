@@ -172,7 +172,7 @@
                             <div class="header-col">Tên chi phí</div>
                             <div class="header-col">Số lượng</div>
                         </div>
-    
+
                         <div class="note">
                             <div class="title">Trạng thái:</div>
                             <div class="item">
@@ -667,7 +667,7 @@
                         </div>
                     </div>
                 </div>
-    
+
                 <div class="item">
                     <img src="./resources/user.png" alt="">
                     <div class="name">Name</div>
@@ -679,7 +679,7 @@
                         </div>
                     </div>
                 </div>
-    
+
                 <div class="item">
                     <img src="./resources/user.png" alt="">
                     <div class="name">Name</div>
@@ -715,34 +715,70 @@
 
                     <div class="items">
                         <div class="row">
-                            <div class="field"><div class="wrap">1. Tiền điện</div></div>
-                            <div class="field"><div class="wrap">1300k</div></div>
-                            <div class="field"><div class="wrap">7/11/2023</div></div>
+                            <div class="field">
+                                <div class="wrap">1. Tiền điện</div>
+                            </div>
+                            <div class="field">
+                                <div class="wrap">1300k</div>
+                            </div>
+                            <div class="field">
+                                <div class="wrap">7/11/2023</div>
+                            </div>
                         </div>
                         <div class="row">
-                            <div class="field"><div class="wrap">2. Tiền wifi</div></div>
-                            <div class="field"><div class="wrap">260k</div></div>
-                            <div class="field"><div class="wrap">29/11/2023</div></div>
+                            <div class="field">
+                                <div class="wrap">2. Tiền wifi</div>
+                            </div>
+                            <div class="field">
+                                <div class="wrap">260k</div>
+                            </div>
+                            <div class="field">
+                                <div class="wrap">29/11/2023</div>
+                            </div>
                         </div>
                         <div class="row">
-                            <div class="field"><div class="wrap">3. Tiền phòng</div></div>
-                            <div class="field"><div class="wrap">15000k</div></div>
-                            <div class="field"><div class="wrap">15/11/2023</div></div>
+                            <div class="field">
+                                <div class="wrap">3. Tiền phòng</div>
+                            </div>
+                            <div class="field">
+                                <div class="wrap">15000k</div>
+                            </div>
+                            <div class="field">
+                                <div class="wrap">15/11/2023</div>
+                            </div>
                         </div>
                         <div class="row">
-                            <div class="field"><div class="wrap"></div></div>
-                            <div class="field"><div class="wrap"></div></div>
-                            <div class="field"><div class="wrap"></div></div>
+                            <div class="field">
+                                <div class="wrap"></div>
+                            </div>
+                            <div class="field">
+                                <div class="wrap"></div>
+                            </div>
+                            <div class="field">
+                                <div class="wrap"></div>
+                            </div>
                         </div>
                         <div class="row">
-                            <div class="field"><div class="wrap"></div></div>
-                            <div class="field"><div class="wrap"></div></div>
-                            <div class="field"><div class="wrap"></div></div>
+                            <div class="field">
+                                <div class="wrap"></div>
+                            </div>
+                            <div class="field">
+                                <div class="wrap"></div>
+                            </div>
+                            <div class="field">
+                                <div class="wrap"></div>
+                            </div>
                         </div>
                         <div class="row">
-                            <div class="field"><div class="wrap"></div></div>
-                            <div class="field"><div class="wrap"></div></div>
-                            <div class="field"><div class="wrap"></div></div>
+                            <div class="field">
+                                <div class="wrap"></div>
+                            </div>
+                            <div class="field">
+                                <div class="wrap"></div>
+                            </div>
+                            <div class="field">
+                                <div class="wrap"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -804,7 +840,7 @@
 
     <div class="pop-up-wrap" style="display: none;">
         <div class="pop-up">
-            
+
             <div class="button-group">
                 <button class="close primary">Đóng</button>
             </div>
@@ -827,7 +863,7 @@
             let isAdmin = (user.id == currentRoom.adminUserId)
             $('#left-side-bar .item[tab-id="request-payments"]').toggle(isAdmin)
         }
-        
+
         function loadListRoomViews(rooms) {
             $('#list-rooms .main-rooms').html('')
             for (let i = 0; i < rooms.length && i < 2; i++) {
@@ -876,6 +912,55 @@
         }
         $('#nav-left-side .room-details .switch-room').click(showListRooms)
         showListRooms()
+
+        // Create room
+        $('#nav-left-side .add-room').click(function () {
+            let html = `
+                <div class="header">Tạo phòng</div>
+                <form>
+                    <input type="text" placeholder="Tên phòng" class="primary" name="name">
+                    <input type="text" placeholder="Địa chỉ phòng" class="primary" name="address">
+                    <span class="errors"></span>
+                    <button class="submit" style="display: none;"></button>
+                </form>
+            `
+
+            popUp(html, {
+                hideCloseButton: true,
+                script: (jPopUp) => {
+                    FormManager(jPopUp.find('form'), {
+                        fieldNamesAndRequires: [
+                            { name: 'name', requires: 'notEmpty' }
+                        ],
+                        onSubmit: (formData) => {
+                            let name = formData.name
+                            let address = formData.address
+                            api.createRoom(name, address, {
+                                onDone: (newRoom) => {
+                                    jPopUp.remove()
+                                    currentRoom = newRoom
+                                    showRoomDetails()
+                                }
+                            })
+                        }
+                    })
+                    jPopUp.find('.header').css({
+                        'text-align': 'center',
+                        'font-weight': '600',
+                        'font-size': '40px',
+                        'margin-bottom': '36px'
+                    })
+                },
+                buttonHtmls: ['Thoát', 'Tạo phòng mới'],
+                buttonClickHandlers: [
+                    (jPopUp) => jPopUp.remove(),
+                    (jPopUp) => jPopUp.find('form button.submit').click()
+                ],
+                style: {
+                    'background-color': '#79E0EE'
+                }
+            })
+        })
     </script>
 
     <script src="./main.js"></script>
