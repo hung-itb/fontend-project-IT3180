@@ -54,7 +54,7 @@ body {
                     padding: 12px 18px;
                     font-size: 20px;
                     font-weight: 600;
-                    width: 250px;
+                    width: 320px;
                     padding-right: 72px;
                 }
 
@@ -80,6 +80,11 @@ body {
                     }
                 }
             }
+
+            #view-join-room-req-of-user {
+                margin-left: 20px;
+                text-align: center;
+            }
         }
 
         .room-details {
@@ -90,14 +95,7 @@ body {
             }
 
             .switch-room {
-                text-decoration: underline;
-                color: #1DB435;
-                cursor: pointer;
-                width: fit-content;
 
-                &:hover {
-                    color: #07791a;
-                }
             }
         }
     }
@@ -128,15 +126,7 @@ body {
         }
 
         .log-out {
-            text-decoration: underline;
-            color: #1DB435;
-            cursor: pointer;
-            width: fit-content;
             margin-left: 30px;
-
-            &:hover {
-                color: #07791a;
-            }
         }
     }
 }
@@ -635,6 +625,7 @@ body {
             height: 100%;
             padding: 30px;
             overflow-y: auto;
+            position: relative;
 
             .header {
                 font-weight: 600;
@@ -688,6 +679,28 @@ body {
 
                 >*:nth-child(2), >*:nth-child(3) {
                     border-right: 3px solid black;
+                }
+            }
+
+            #view-join-room-req-of-room {
+                position: absolute;
+                top: 32px;
+                right: 60px;
+                cursor: pointer;
+
+                img {
+                    height: 48px;
+                }
+
+                .count {
+                    position: absolute;
+                    right: calc(100% + -5px);
+                    top: 1px;
+                    padding: 4px 10px;
+                    border-radius: 50%;
+                    font-size: 16px;
+                    background-color: red;
+                    color: white;
                 }
             }
         }
@@ -853,6 +866,98 @@ body {
 
                 &:first-child {
                     margin-left: 0;
+                }
+            }
+        }
+    }
+}
+
+.pop-up {
+    .join-request.of-user {
+        display: flex;
+        align-items: center;
+        border: 2px solid #ccc;
+        padding: 4px 12px;
+        margin-bottom: 18px;
+
+        >* {
+            flex: 1;
+        }
+
+        .room-name {
+            color: #5741ff;
+            font-size: 20px;
+        }
+
+        .request-date {
+            text-align: center;
+            color: #8d8d8d;
+        }
+
+        .status {
+            &.waitting {
+                color: #e7e73a;
+            }
+            &.accept {
+                color: green;
+            }
+            &.reject {
+                color: red;
+            }
+        }
+
+        .operation {
+            color: #ff5823;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+    }
+
+    .join-request.of-room {
+        display: flex;
+        height: 60px;
+        padding-right: 12px;
+        background-color: #98EECC;
+        border-radius: 30px;
+        margin-bottom: 16px;
+
+        .group {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 100%;
+
+            img {
+                height: 100%;
+                border-radius: 50%;
+                object-fit: cover;
+            }
+
+            .name {
+                width: max-content;
+                width: 300px;
+                margin-left: 20px;
+                font-size: 24px;
+            }
+
+            .request-date {
+                margin-right: 32px;
+                color: #afafaf;
+                width: 80px;
+            }
+        }
+
+        .operation {
+            display: flex;
+            align-items: center;
+
+            img {
+                border-radius: 50%;
+                cursor: pointer;
+                height: 40px;
+
+                &:last-child {
+                    margin-left: 6px;
                 }
             }
         }

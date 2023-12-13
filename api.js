@@ -2,7 +2,9 @@
 const ERROR = {
     USERNAME_DOESNOT_EXIST: 'USERNAME_DOESNOT_EXIST',
     WRONG_PASSWORD: 'WRONG_PASSWORD',
-    EXISTED_USERNAME: 'EXISTED_USERNAME'
+    EXISTED_USERNAME: 'EXISTED_USERNAME',
+    ROOM_ID_DOESNOT_EXIST: 'ROOM_ID_DOESNOT_EXIST',
+    USER_HAS_BEEN_IN_ROOM: 'USER_HAS_BEEN_IN_ROOM'
 }
 
 const DEV_MODE = true
@@ -148,7 +150,7 @@ function FakeAPI() {
     function initJoinReq(users, rooms, room_user, MAX_NUM_JOIN_ROOM_REQUESTS_PER_USER) {
         let joinRoomRequests = []
         for (let user of users) {
-            let numRequests = randInt(0, Math.min(MAX_NUM_JOIN_ROOM_REQUESTS_PER_USER, rooms.length))
+            let numRequests = randInt(0, Math.min(MAX_NUM_JOIN_ROOM_REQUESTS_PER_USER*10, rooms.length))
             let roomIdsHasThisUser = new Set(
                 room_user
                 .filter(({userId}) => userId == user.id)
@@ -159,7 +161,7 @@ function FakeAPI() {
                 joinRoomRequests.push({
                     roomId: room.id,
                     userId: user.id,
-                    status: 1,
+                    status: sample([0, 1, 2]),
                     requestDate: randomDate()
                 })
             }
@@ -270,7 +272,6 @@ function FakeAPI() {
             }
         }
     })()
-
     let roomDAO = (() => {
         return {
             createRoom: (name, address, adminUserId) => {
@@ -286,7 +287,7 @@ function FakeAPI() {
                     userId: adminUserId,
                     roomId: newRoom.id,
                     status: 1,
-                    joinDate: CustomDateManager.toCustomDate(new Date())
+                    joinDate: CustomDateManager.now()
                 })
 
                 return newRoom
@@ -301,10 +302,10 @@ function FakeAPI() {
                     return roomId == rid
                     && (status == 1 || !CustomDateManager.d1SmallerThanD2(leaveDate, earlyThisMonth))
                 }).length
-            }
+            },
+            getRoomById: (rid) => rooms.find(({id}) => rid == id)
         }
     })()
-
     let smallTransactionsDAO = (() => {
         return {
             getSmallTransaction: (rid, month, year, specificUserId) => {
@@ -339,12 +340,20 @@ function FakeAPI() {
             }
         }
     })()
-
     let feesWithDealineDAO = (() => {
         return {
             getFeesWithDeadline: (rid) => {
                 return feesWithDealine.filter(({roomId}) => roomId == rid)
             }
+        }
+    })()
+    let joinRoomReqDAO = (() => {
+        return {
+            get: (rid, uid = null, _status = null, all = false) => joinRoomRequests[all ? 'filter' : 'find'](({roomId, userId, status}) => {
+                return roomId == rid
+                    && (!uid || uid == userId)
+                    && (!_status || _status == status)
+            })
         }
     })()
 
@@ -434,6 +443,76 @@ function FakeAPI() {
         createRoom: (name, address, {onDone}) => {
             let uid = localStorage.getItem('userId')
             onDone(roomDAO.createRoom(name, address, uid))
+        },
+        createJoinRoomRequest: (roomId, {onDone, onFailed}) => {
+            let uid = localStorage.getItem('userId')
+            let room = roomDAO.getRoomById(roomId)
+            if (!room) {
+                onFailed(ERROR.ROOM_ID_DOESNOT_EXIST)
+                return
+            }
+            let roomsOfUser = roomDAO.getRoomsOfUserId(uid)
+            if (roomsOfUser.some(({id}) => id == roomId)) {
+                onFailed(ERROR.USER_HAS_BEEN_IN_ROOM)
+                return
+            }
+            let joinReqExisted = joinRoomReqDAO.get(roomId, uid)
+            if (joinReqExisted) {
+                joinReqExisted.status = 1
+                joinReqExisted.requestDate = CustomDateManager.now()
+                onDone()
+                return
+            }
+            let joinRoomRequest = {
+                userId, roomId,
+                status: 1,
+                requestDate: CustomDateManager.now()
+            }
+            joinRoomRequests.push(joinRoomRequest)
+            onDone()
+        },
+        getJoinRoomRequestOfUser: ({onDone, onFailed}) => {
+            let uid = localStorage.getItem('userId')
+            let joinReqs = joinRoomRequests.filter(({userId}) => userId == uid)
+            joinReqs.forEach(joinReq => {
+                joinReq.roomName = roomDAO.getRoomById(joinReq.roomId).roomName
+            })
+            onDone(joinReqs)
+        },
+        getJoinRoomRequestOfRoom: (roomId, {onDone, onFailed}) => {
+            let joinReqs = joinRoomReqDAO.get(roomId, null, 1, true)
+            joinReqs.forEach(req => {
+                let user = userDAO.findUserById(req.userId)
+                Object.assign(req, {
+                    fullname: user.fullname,
+                    avatarUrl: user.avatarUrl
+                })
+            })
+            onDone(joinReqs)
+        },
+        rejectJoinRoomRequest: (roomId, userId, {onDone}) => {
+            let isSenderProactive = !userId
+            let uid = isSenderProactive ? localStorage.getItem('userId') : userId
+            let joinReq = joinRoomReqDAO.get(roomId, uid)
+            joinReq.status = isSenderProactive ? 3 : 0
+            onDone()
+        },
+        acceptJoinRoomRequest: (rid, uid, {onDone}) => {
+            let joinReq = joinRoomReqDAO.get(rid, uid)
+            joinReq.status = 2
+            let pair = room_user.find(({userId, roomId}) => userId == uid && roomId == rid)
+            if (!pair) {
+                pair = {
+                    userId: uid,
+                    roomId: rid
+                }
+                room_user.push(pair)
+            }
+            Object.assign(pair, {
+                status: 1,
+                joinDate: CustomDateManager.now()
+            })
+            onDone()
         }
     }
 }

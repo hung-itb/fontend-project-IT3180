@@ -318,6 +318,14 @@ function loadInputTransactionView() {
 }
 
 function loadListRoomMembersView() {
+    $('#view-join-room-req-of-room').toggle(user.id == currentRoom.adminUserId)
+    let countReqs = $('#view-join-room-req-of-room .count').hide()
+    api.getJoinRoomRequestOfRoom(currentRoom.id, {
+        onDone: (joinReqs) => {
+            countReqs.text(joinReqs.length)
+            countReqs.toggle(joinReqs.length != 0)
+        }
+    })
     let jCont = $('#room-members')
     jCont.find('.list-members > .item').remove()
 

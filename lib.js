@@ -75,6 +75,7 @@ function addFloatElement(e, html, option = null) {
 function popUp(html, option) {
     let defaultOption = {
         script: null,
+        scriptAfterAppend: null,
         buttonHtmls: [],
         buttonClickHandlers: [],
         hideCloseButton: false
@@ -88,7 +89,7 @@ function popUp(html, option) {
 
     let popupHtml = `<div class="pop-up-wrap">
         <div class="pop-up">
-            ${html}
+            <div class="content">${html}</div>
             <div class="button-group">
                 ${option.buttonHtmls.map((text, i) => `<button class="adtn-button-${i} primary">${text}</button>`).join('')}
                 <button class="close primary">Đóng</button>
@@ -115,29 +116,45 @@ function popUp(html, option) {
     }
 
     $(document.body).append(jPopUp)
+
+    if (option.scriptAfterAppend) {
+        option.scriptAfterAppend(jPopUp)
+    }
+}
+
+function popUpMessage(mes) {
+    popUp(mes, {
+        style: {
+            width: '400px',
+            height: '300px',
+            'font-size': '20px'
+        }
+    })
 }
 
 let CustomDateManager = (() => {
-    return {
+    let a = {
         d1SmallerThanD2: (date1, date2) => {
-            let [d1, m1, y1] = date1.split('/').map(i => Number(i))
-            let [d2, m2, y2] = date2.split('/').map(i => Number(i))
-            if (y1 < y2) return true
-            if (y2 < y1) return false
-            if (m1 < m2) return true
-            if (m2 < m1) return false
-            if (d1 < d2) return true
-            if (d2 < d1) return false
-            // date1 == date2, xử lý riêng
-            return false
+            return a.toCompareableNumber(date1) - a.toCompareableNumber(date2) < 0
         },
         toCustomDate: (date) => {
             let d = date.getDate()
             let m = date.getMonth() + 1
             let y = date.getFullYear()
             return `${d}/${m}/${y}`
-        }
+        },
+        toCompareableNumber: (cDate) => {
+            let [d1, m1, y1] = cDate.split('/').map(i => Number(i))
+            return d1 + m1*100 + y1*10000
+        },
+        sortByDate: (arr, get, desc = false) => {
+            arr.sort((x, y) => {
+                return (a.toCompareableNumber(get(x)) - a.toCompareableNumber(get(y)))*(desc ? -1 : 1)
+            })
+        },
+        now: () => a.toCustomDate(new Date())
     }
+    return a
 })()
 
 let TypeManager = (() => {
@@ -245,4 +262,10 @@ function FormManager(jForm, option) {
             )
         }
     })
+}
+
+function resizeImg(jImgs) {
+    let h = jImgs.height()
+    if (h != 0) jImgs.width(h)
+    else setTimeout(() => resizeImg(jImgs), 1)
 }
