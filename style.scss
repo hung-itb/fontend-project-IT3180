@@ -771,6 +771,7 @@ body {
                     .row {
                         display: flex;
                         width: 100%;
+                        cursor: pointer;
 
                         .field {
                             padding: 16px;
@@ -799,6 +800,10 @@ body {
                                 width: 27.5%;
                             }
                         }
+
+                        &:hover {
+                            background-color: #f3f3f3;
+                        }
                     }
                 }
             }
@@ -807,6 +812,8 @@ body {
                 padding: 0 24px;
 
                 .op {
+                    cursor: pointer;
+                    
                     img {
                         width: 48px;
                     }

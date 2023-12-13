@@ -684,20 +684,24 @@
         <div class="content" id="request-payments" style="display: none;">
             <div id="list-request-payments">
                 <div class="list">
-                    <div class="headers">
-                        <div class="header">
-                            <div class="title">Tên chi phí</div>
-                            <input type="text">
+                    <form action="">
+                        <div class="headers">
+                            <div class="header">
+                                <div class="title">Tên chi phí</div>
+                                <input type="text" name="name">
+                            </div>
+                            <div class="header">
+                                <div class="title">Số tiền</div>
+                                <input type="text" name="price">
+                            </div>
+                            <div class="header">
+                                <div class="title">Thời hạn</div>
+                                <input type="text" name="deadline">
+                            </div>
                         </div>
-                        <div class="header">
-                            <div class="title">Số tiền</div>
-                            <input type="text">
-                        </div>
-                        <div class="header">
-                            <div class="title">Thời hạn</div>
-                            <input type="text">
-                        </div>
-                    </div>
+                        <div class="errors" style="margin-top: 12px;"></div>
+                        <button class="submit" style="display: none;"></button>
+                    </form>
 
                     <div class="items">
                         <div class="row">
@@ -711,66 +715,11 @@
                                 <div class="wrap">7/11/2023</div>
                             </div>
                         </div>
-                        <div class="row">
-                            <div class="field">
-                                <div class="wrap">2. Tiền wifi</div>
-                            </div>
-                            <div class="field">
-                                <div class="wrap">260k</div>
-                            </div>
-                            <div class="field">
-                                <div class="wrap">29/11/2023</div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="field">
-                                <div class="wrap">3. Tiền phòng</div>
-                            </div>
-                            <div class="field">
-                                <div class="wrap">15000k</div>
-                            </div>
-                            <div class="field">
-                                <div class="wrap">15/11/2023</div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="field">
-                                <div class="wrap"></div>
-                            </div>
-                            <div class="field">
-                                <div class="wrap"></div>
-                            </div>
-                            <div class="field">
-                                <div class="wrap"></div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="field">
-                                <div class="wrap"></div>
-                            </div>
-                            <div class="field">
-                                <div class="wrap"></div>
-                            </div>
-                            <div class="field">
-                                <div class="wrap"></div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="field">
-                                <div class="wrap"></div>
-                            </div>
-                            <div class="field">
-                                <div class="wrap"></div>
-                            </div>
-                            <div class="field">
-                                <div class="wrap"></div>
-                            </div>
-                        </div>
                     </div>
                 </div>
 
                 <div class="operations">
-                    <div class="op">
+                    <div class="op add-fee-with-dealine">
                         <img src="./resources/add.png" alt="">
                     </div>
                 </div>
@@ -904,8 +853,8 @@
             let html = `
                 <div class="header">Tạo phòng</div>
                 <form>
-                    <input type="text" placeholder="Tên phòng" class="primary" name="name">
-                    <input type="text" placeholder="Địa chỉ phòng" class="primary" name="address">
+                    <input type="text" class="primary" name="name">
+                    <input type="text" class="primary" name="address">
                     <span class="errors"></span>
                     <button class="submit" style="display: none;"></button>
                 </form>
@@ -916,7 +865,8 @@
                 script: (jPopUp) => {
                     FormManager(jPopUp.find('form'), {
                         fieldNamesAndRequires: [
-                            { name: 'name', requires: 'notEmpty' }
+                            { name: 'name', requires: 'notEmpty', vnName: 'Tên phòng' },
+                            { name: 'address', requires: '', vnName: 'Địa chỉ phòng' }
                         ],
                         onSubmit: (formData) => {
                             let name = formData.name
@@ -930,21 +880,12 @@
                             })
                         }
                     })
-                    jPopUp.find('.header').css({
-                        'text-align': 'center',
-                        'font-weight': '600',
-                        'font-size': '40px',
-                        'margin-bottom': '36px'
-                    })
                 },
                 buttonHtmls: ['Thoát', 'Tạo phòng mới'],
                 buttonClickHandlers: [
                     (jPopUp) => jPopUp.remove(),
                     (jPopUp) => jPopUp.find('form button.submit').click()
-                ],
-                style: {
-                    'background-color': '#79E0EE'
-                }
+                ]
             })
         })
 
@@ -1017,12 +958,6 @@
                     height: '640px'
                 },
                 script: (jPopUp) => {
-                    jPopUp.find('.header').css({
-                        'text-align': 'center',
-                        'font-weight': '600',
-                        'font-size': '40px',
-                        'margin-bottom': '36px'
-                    })
                     api.getJoinRoomRequestOfRoom(currentRoom.id, {
                         onDone: (joinReqs) => {
                             CustomDateManager.sortByDate(joinReqs, j => j.requestDate, true)

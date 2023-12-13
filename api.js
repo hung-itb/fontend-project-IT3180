@@ -246,7 +246,7 @@ function FakeAPI() {
                     id,
                     name, deadline,
                     roomId,
-                    cost: randInt(20, 60)*50
+                    price: randInt(20, 60)*50
                 })
             }
         }
@@ -342,6 +342,9 @@ function FakeAPI() {
     })()
     let feesWithDealineDAO = (() => {
         return {
+            get: (fid) => {
+                return feesWithDealine.find(({id}) => id == fid)
+            },
             getFeesWithDeadline: (rid) => {
                 return feesWithDealine.filter(({roomId}) => roomId == rid)
             }
@@ -439,6 +442,16 @@ function FakeAPI() {
         },
         getFeesWithDeadline: (rid, {onDone}) => {
             onDone(feesWithDealineDAO.getFeesWithDeadline(rid))
+        },
+        deleteFeeWithDeadline: (fid, {onDone}) => {
+            feesWithDealine = feesWithDealine.filter(({id}) => id != fid)
+            user_feeWithDeadline = user_feeWithDeadline.filter(({feeId}) => feeId != fid)
+            onDone()
+        },
+        updateFeeWithDeadline: (fid, name, price, deadline, {onDone}) => {
+            let fee = feesWithDealineDAO.get(fid)
+            Object.assign(fee, {name, price, deadline})
+            onDone(fee)
         },
         createRoom: (name, address, {onDone}) => {
             let uid = localStorage.getItem('userId')

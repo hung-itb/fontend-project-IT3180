@@ -656,6 +656,7 @@ body {
 #main-container #request-payments #list-request-payments .list .items .row {
   display: flex;
   width: 100%;
+  cursor: pointer;
 }
 #main-container #request-payments #list-request-payments .list .items .row .field {
   padding: 16px;
@@ -680,8 +681,14 @@ body {
 #main-container #request-payments #list-request-payments .list .items .row .field:nth-child(3) {
   width: 27.5%;
 }
+#main-container #request-payments #list-request-payments .list .items .row:hover {
+  background-color: #f3f3f3;
+}
 #main-container #request-payments #list-request-payments .operations {
   padding: 0 24px;
+}
+#main-container #request-payments #list-request-payments .operations .op {
+  cursor: pointer;
 }
 #main-container #request-payments #list-request-payments .operations .op img {
   width: 48px;

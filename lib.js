@@ -52,11 +52,19 @@ function addFloatElement(e, html, option = null) {
     if (option.displayCondition == 'always') {
         e.appendChild(floatElement)
     }
-    if (option.displayCondition == 'hover') {
+    else if (option.displayCondition == 'hover') {
         e.onmouseenter = () => {
             e.appendChild(floatElement)
         }
         e.onmouseleave = () => {
+            e.removeChild(floatElement)
+        }
+    }
+    else if (option.displayCondition == 'focus') {
+        e.onfocus = () => {
+            e.appendChild(floatElement)
+        }
+        e.onblur = () => {
             e.removeChild(floatElement)
         }
     }
@@ -201,7 +209,8 @@ function FormManager(jForm, option) {
     // Require types: notEmpty, isNonNegativeInt, isMyCustomDate
     let defaultOption = {
         fieldNamesAndRequires: [], // {name: 'field name', requires: 'not empty' || ['not empty', ..., (val, errors) => {}]}
-        onSubmit: () => {}
+        onSubmit: () => {},
+        ipPlaceHolderSameVnName: true
     }
     if (option) {
         for (let key in option) {
@@ -210,14 +219,20 @@ function FormManager(jForm, option) {
     }
     option = defaultOption
 
+    if (option.ipPlaceHolderSameVnName) {
+        option.fieldNamesAndRequires.forEach(({name, vnName}) => {
+            jForm.find(`input[name="${name}"]`).attr('placeholder', vnName)
+        })
+    }
+
     jForm.find('button.submit').click((e) => {
         e.preventDefault()
         jForm.find('.errors').html('')
         let formData = {}
         let errors = []
         jForm.find('input').each((_, ip) => formData[$(ip).attr('name')] = $(ip).val())
-        for (let { name, requires } of option.fieldNamesAndRequires) {
-            if (typeof requires == 'string') requires = [requires]
+        for (let { name, requires, vnName } of option.fieldNamesAndRequires) {
+            if (typeof requires == 'string') requires = requires == '' ? [] : [requires]
             let val = formData[name]
             let valValid = true
             for (let req of requires) {
@@ -225,13 +240,13 @@ function FormManager(jForm, option) {
                 switch (req) {
                     case 'notEmpty':
                         if (TypeManager.isEmpty(val)) {
-                            errors.push(`Không được để trống trường thông tin "${name}"`)
+                            errors.push(`Không được để trống trường thông tin "${vnName || name}"`)
                             valValid = false
                         }
                         break;
                     case 'isNonNegativeInt':
                         if (!TypeManager.isPositiveInterger(val)) {
-                            errors.push(`Giá trị của trường thông tin "${name}" phải là số nguyên không âm`)
+                            errors.push(`Giá trị của trường thông tin "${vnName || name}" phải là số nguyên không âm`)
                             valValid = false
                         } else {
                             formData[name] = String(Math.round(Number(val)))
@@ -239,7 +254,7 @@ function FormManager(jForm, option) {
                         break;
                     case 'isMyCustomDate':
                         if (!TypeManager.isMyCustomDate(val)) {
-                            errors.push(`Giá trị của trường thông tin "${name}" phải là thời gian hợp lệ có dạng dd/mm/yyyy`)
+                            errors.push(`Giá trị của trường thông tin "${vnName || name}" phải là thời gian hợp lệ có dạng dd/mm/yyyy`)
                             valValid = false
                         }
                         break;
