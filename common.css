@@ -82,4 +82,27 @@ form .errors {
 }
 .text-clickable:hover {
   color: #07791a;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+  background-color: #f5f5f5;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #bebebe;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #6e6e6e;
+}
+
+::-webkit-scrollbar-track:hover {
+  background-color: #f0f0f0;
+}
+
+::-webkit-scrollbar-corner {
+  background-color: #f5f5f5;
 }/*# sourceMappingURL=common.css.map */

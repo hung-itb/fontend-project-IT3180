@@ -1,4 +1,5 @@
 
+let addTransactionFormLoaded = false
 function loadInputTransactionView() {
     let jCont = $('#input-transaction')
 
@@ -56,50 +57,53 @@ function loadInputTransactionView() {
     let jAddItemForm = jCont.find('.left form')
     jAddItemForm.find('input').val('')
     jAddItemForm.find('.errors').html('')
-    FormManager(jAddItemForm, {
-        fieldNamesAndRequires: [
-            { name: 'name', requires: 'notEmpty', vnName: 'Tên giao dịch' },
-            { name: 'price', requires: ['notEmpty', 'isNonNegativeInt'], vnName: 'Số tiền' },
-            {
-                name: 'date', requires: ['notEmpty', 'isMyCustomDate', (val, errors) => {
-                    let error = checkSmallTransactionDate(val)
-                    if (!error) return true
-                    errors.push(error)
-                    return false
-                }],
-                vnName: 'Ngày giao dịch'
-            }
-        ],
-        onSubmit: (formData) => {
-            let newItemInListTrasnView = false
-            let newItemInThisMonth = false
-            let [d, m, y] = formData['date'].split('/').map(x => Number(x))
-            if (m == currMonth && y == currYear) {
-                newItemInListTrasnView = true
-            }
-            let now = new Date()
-            let nowMonth = now.getMonth() + 1
-            let nowYear = now.getFullYear()
-            if (m == nowMonth && y == nowYear) {
-                newItemInThisMonth = true
-            }
-
-            let name = formData.name
-            let price = formData.price
-            let date = formData.date
-
-            api.createSmallTransaction(name, price, date, currentRoom.id, {
-                onDone: (newItem) => {
-                    jAddItemForm.find('.errors').html('')
-                    jAddItemForm.find('input').val('')
-                    if (newItemInThisMonth) reloadQuickInfo()
-                    if (!newItemInListTrasnView) return
-
-                    appendNewItemToListItem(newItem)
+    if (!addTransactionFormLoaded) {
+        addTransactionFormLoaded = true
+        FormManager(jAddItemForm, {
+            fieldNamesAndRequires: [
+                { name: 'name', requires: 'notEmpty', vnName: 'Tên giao dịch' },
+                { name: 'price', requires: ['notEmpty', 'isNonNegativeInt'], vnName: 'Số tiền' },
+                {
+                    name: 'date', requires: ['notEmpty', 'isMyCustomDate', (val, errors) => {
+                        let error = checkSmallTransactionDate(val)
+                        if (!error) return true
+                        errors.push(error)
+                        return false
+                    }],
+                    vnName: 'Ngày giao dịch'
                 }
-            })
-        }
-    })
+            ],
+            onSubmit: (formData) => {
+                let newItemInListTrasnView = false
+                let newItemInThisMonth = false
+                let [d, m, y] = formData['date'].split('/').map(x => Number(x))
+                if (m == currMonth && y == currYear) {
+                    newItemInListTrasnView = true
+                }
+                let now = new Date()
+                let nowMonth = now.getMonth() + 1
+                let nowYear = now.getFullYear()
+                if (m == nowMonth && y == nowYear) {
+                    newItemInThisMonth = true
+                }
+    
+                let name = formData.name
+                let price = formData.price
+                let date = formData.date
+    
+                api.createSmallTransaction(name, price, date, currentRoom.id, {
+                    onDone: (newItem) => {
+                        jAddItemForm.find('.errors').html('')
+                        jAddItemForm.find('input').val('')
+                        if (newItemInThisMonth) reloadQuickInfo()
+                        if (!newItemInListTrasnView) return
+    
+                        appendNewItemToListItem(newItem)
+                    }
+                })
+            }
+        })
+    }
 
     jCont.find('.user-selection').html('')
     api.getUsersOfRoomId(currentRoom.id, {
@@ -376,32 +380,158 @@ function loadFixedCostsView() {
     }
 
     function loadAdminView() {
+        function load() {
 
+        }
+        api.getFees
     }
 
     if (isAdmin) loadAdminView()
     else loadMemberView()
 }
 
+let addFeeFormLoaded = false
 function loadRequestPaymentsView() {
     let jCont = $('#request-payments')
     let jItems = jCont.find('#list-request-payments .items').html('')
+    let limit = 15
 
-    FormManager(jCont.find('form'), {
-        fieldNamesAndRequires: [
-            {name: 'name', requires: 'notEmpty', vnName: 'Tên chi phí'},
-            {name: 'price', requires: ['notEmpty', 'isNonNegativeInt'], vnName: 'Số tiền'},
-            {name: 'deadline', requires: ['notEmpty', 'isMyCustomDate'], vnName: 'Thời hạn'}
-        ],
-        onSubmit: (formData) => {
-            l(formData)
-        },
-        ipPlaceHolderSameVnName: false
-    })
-    jCont.find('.operations .add-fee-with-dealine').click(() => jCont.find('form button.submit').click())
+    function createItemInListFees({ name, deadline, price, id }, i) {
+        let nameInHtml = name ? `${i + 1}. ${name}` : ''
+        let priceInHtml = price ? price + 'k' : ''
+        let itemHtml = `<div class="row">
+            <div class="field"><div class="wrap">${nameInHtml}</div></div>
+            <div class="field"><div class="wrap">${priceInHtml}</div></div>
+            <div class="field"><div class="wrap">${deadline || ''}</div></div>
+        </div>`
+        let jItem = $(itemHtml)
 
+        let editable = (nameInHtml.length != 0) && true
+        if (!editable) return jItem
+
+        let fEHtml = `<div class="fee-with-deadline-ops">
+            <button class="primary edit">Sửa</button>
+            <button class="primary delete">Xóa</button>
+        </div>`
+        addFloatElement(jItem[0], fEHtml, {
+            displayCondition: 'hover',
+            script: (fE) => {
+                let style =  {
+                    padding: '12px',
+                    width: '260px',
+                    display: 'flex',
+                    justifyContent: 'space-around'
+                }
+                Object.assign(fE.querySelector('.fee-with-deadline-ops').style, style)
+            
+                // Adjust float element position when item is first or last item
+                jItem
+                .on('mouseenter', () => {
+                    let isFirst = (jItem.prev().length == 0)
+                    if (isFirst) {
+                        $(fE).css({
+                            top: '100%',
+                            bottom: 'unset',
+                            'z-index': 10
+                        })
+                    }
+                })
+                .on('onmouseleave', function () {
+                    $(fE).css({
+                        top: 'unset',
+                        bottom: '100%',
+                        'z-index': null
+                    })
+                })
+
+                $(fE).find('button.delete').click(() => {
+                    api.deleteFeeWithDeadline(id, {
+                        onDone: () => loadRequestPaymentsView()
+                    })
+                })
+
+                $(fE).find('button.edit').click(() => {
+                    $(fE).hide()
+                    setTimeout(() => $(fE).show(), 100)
+                    let popupHtml = `
+                        <form>
+                            <input type="text" class="primary" name="name">
+                            <input type="text" class="primary" name="price">
+                            <input type="text" class="primary" name="deadline">
+                            <span class="errors"></span>
+                            <button class="submit" style="display: none;"></button>
+                        </form>
+                    `
+                    popUp(popupHtml, {
+                        hideCloseButton: true,
+                        buttonHtmls: ['Thoát', 'Lưu cập nhật'],
+                        buttonClickHandlers: [
+                            (jPopUp) => jPopUp.remove(),
+                            (jPopUp) => jPopUp.find('form button.submit').click()
+                        ],
+                        script: (jPopUp) => {
+                            jPopUp.find('input[name="name"]').val(name)
+                            jPopUp.find('input[name="price"]').val(price)
+                            jPopUp.find('input[name="deadline"]').val(deadline)
+                            FormManager(jPopUp.find('form'), {
+                                fieldNamesAndRequires: [
+                                    {name: 'name', requires: 'notEmpty', vnName: 'Tên chi phí'},
+                                    {name: 'price', requires: ['notEmpty', 'isNonNegativeInt'], vnName: 'Số tiền'},
+                                    {name: 'deadline', requires: ['notEmpty', 'isMyCustomDate'], vnName: 'Thời hạn'}
+                                ],
+                                onSubmit: (formData) => {
+                                    let {name, price, deadline} = formData
+                                    api.updateFeeWithDeadline(id, name, price, deadline, {
+                                        onDone: (fee) => {
+                                            jPopUp.remove()
+                                            loadRequestPaymentsView()
+                                        }
+                                    })
+                                }
+                            })
+                        }
+                    })
+                })
+            }
+        })
+        return jItem
+    }
+    if (!addFeeFormLoaded) {
+        addFeeFormLoaded = true
+        FormManager(jCont.find('form'), {
+            fieldNamesAndRequires: [
+                {name: 'name', requires: 'notEmpty', vnName: 'Tên chi phí'},
+                {name: 'price', requires: ['notEmpty', 'isNonNegativeInt'], vnName: 'Số tiền'},
+                {name: 'deadline', requires: ['notEmpty', 'isMyCustomDate'], vnName: 'Thời hạn'}
+            ],
+            onSubmit: (formData) => {
+                let {name, price, deadline} = formData
+                api.createFeesWithDeadline(currentRoom.id, name, price, deadline, {
+                    onDone: () => loadRequestPaymentsView()
+                })
+            },
+            ipPlaceHolderSameVnName: false
+        })
+        jCont.find('.operations .add-fee-with-dealine').click(() => jCont.find('form button.submit').click())
+    }
+
+    let fees
+    function displayFees(startIdx, endIdx) {
+        jItems.find('.more-results').remove()
+        for (var i = startIdx; i <= endIdx && i < fees.length; i++) {
+            jItems.append(createItemInListFees(fees[i], i))
+        }
+        let remain = (i != fees.length) && (Object.keys(fees[i]).length != 0)
+        if (remain) {
+            jItems.append(`<div class="more-results text-clickable">Xem thêm ${limit} chi phí có thời hạn</div>`)
+            jItems.find('.more-results').click(() => {
+                displayFees(endIdx + 1, endIdx + limit)
+            })
+        }
+    }
     api.getFeesWithDeadline(currentRoom.id, {
-        onDone: (fees) => {
+        onDone: (result) => {
+            fees = result
             fees.sort((f1, f2) => {
                 return CustomDateManager.d1SmallerThanD2(f1.deadline, f2.deadline) ? 1 : -1
             })
@@ -409,105 +539,7 @@ function loadRequestPaymentsView() {
             while (fees.length < 6) {
                 fees.push({})
             }
-
-            fees.forEach(({ name, deadline, price, id }, i) => {
-                let nameInHtml = name ? `${i + 1}. ${name}` : ''
-                let priceInHtml = price ? price + 'k' : ''
-                let itemHtml = `<div class="row">
-                    <div class="field"><div class="wrap">${nameInHtml}</div></div>
-                    <div class="field"><div class="wrap">${priceInHtml}</div></div>
-                    <div class="field"><div class="wrap">${deadline || ''}</div></div>
-                </div>`
-                let jItem = $(itemHtml)
-                jItems.append(jItem)
-
-                if (nameInHtml.length == 0) return
-                let fEHtml = `<div class="fee-with-deadline-ops">
-                    <button class="primary edit">Sửa</button>
-                    <button class="primary delete">Xóa</button>
-                </div>`
-                addFloatElement(jItem[0], fEHtml, {
-                    displayCondition: 'hover',
-                    script: (fE) => {
-                        let style =  {
-                            padding: '12px',
-                            width: '260px',
-                            display: 'flex',
-                            justifyContent: 'space-around'
-                        }
-                        Object.assign(fE.querySelector('.fee-with-deadline-ops').style, style)
-                    
-                        // Adjust float element position when item is first or last item
-                        jItem
-                        .on('mouseenter', () => {
-                            let isFirst = (jItem.prev().length == 0)
-                            if (isFirst) {
-                                $(fE).css({
-                                    top: '100%',
-                                    bottom: 'unset',
-                                    'z-index': 10
-                                })
-                            }
-                        })
-                        .on('onmouseleave', function () {
-                            $(fE).css({
-                                top: 'unset',
-                                bottom: '100%',
-                                'z-index': null
-                            })
-                        })
-
-                        $(fE).find('button.delete').click(() => {
-                            api.deleteFeeWithDeadline(id, {
-                                onDone: () => jItem.remove()
-                            })
-                        })
-
-                        $(fE).find('button.edit').click(() => {
-                            $(fE).hide()
-                            setTimeout(() => $(fE).show(), 100)
-                            let popupHtml = `
-                                <form>
-                                    <input type="text" class="primary" name="name">
-                                    <input type="text" class="primary" name="price">
-                                    <input type="text" class="primary" name="deadline">
-                                    <span class="errors"></span>
-                                    <button class="submit" style="display: none;"></button>
-                                </form>
-                            `
-                            popUp(popupHtml, {
-                                hideCloseButton: true,
-                                buttonHtmls: ['Thoát', 'Lưu cập nhật'],
-                                buttonClickHandlers: [
-                                    (jPopUp) => jPopUp.remove(),
-                                    (jPopUp) => jPopUp.find('form button.submit').click()
-                                ],
-                                script: (jPopUp) => {
-                                    jPopUp.find('input[name="name"]').val(name)
-                                    jPopUp.find('input[name="price"]').val(price)
-                                    jPopUp.find('input[name="deadline"]').val(deadline)
-                                    FormManager(jPopUp.find('form'), {
-                                        fieldNamesAndRequires: [
-                                            {name: 'name', requires: 'notEmpty', vnName: 'Tên chi phí'},
-                                            {name: 'price', requires: ['notEmpty', 'isNonNegativeInt'], vnName: 'Số tiền'},
-                                            {name: 'deadline', requires: ['notEmpty', 'isMyCustomDate'], vnName: 'Thời hạn'}
-                                        ],
-                                        onSubmit: (formData) => {
-                                            let {name, price, deadline} = formData
-                                            api.updateFeeWithDeadline(id, name, price, deadline, {
-                                                onDone: (fee) => {
-                                                    jPopUp.remove()
-                                                    loadRequestPaymentsView()
-                                                }
-                                            })
-                                        }
-                                    })
-                                }
-                            })
-                        })
-                    }
-                })
-            })
+            displayFees(0, limit - 1)
         }
     })
 }

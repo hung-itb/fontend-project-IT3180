@@ -23,8 +23,8 @@ function FakeAPI() {
     let MAX_NUM_MEMBERS_PER_ROOM = 16
     let NUM_ROOMS = 80
     let MAX_NUM_JOIN_ROOM_REQUESTS_PER_USER = 2
-    let MAX_NUM_SMALL_TRANSCATION_PER_USER_PER_ROOM = 100
-    let MAX_NUM_FEE_WITH_DEADLINE = 72
+    let MAX_NUM_SMALL_TRANSCATION_PER_USER_PER_ROOM = 200
+    let MAX_NUM_FEE_WITH_DEADLINE = 720
 
     let random = RandomFunction()
     let randInt = (a, b) => Math.floor(random(a, b + 1))
@@ -439,6 +439,23 @@ function FakeAPI() {
                 mySpent,
                 roomAverage: Math.round(roomSpent/numUsers)
             })
+        },
+        createFeesWithDeadline: (rid, name, price, deadline, {onDone}) => {
+            let newFee = {
+                id: randomId(),
+                name, deadline, price,
+                roomId: rid
+            }
+            feesWithDealine.push(newFee)
+            let users = userDAO.getUsersOfRoomId(rid)
+            users.forEach(({id}) => {
+                user_feeWithDeadline.push({
+                    userId: id,
+                    feeId: newFee.id,
+                    status: 0
+                })
+            })
+            onDone()
         },
         getFeesWithDeadline: (rid, {onDone}) => {
             onDone(feesWithDealineDAO.getFeesWithDeadline(rid))

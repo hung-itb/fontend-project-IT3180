@@ -422,22 +422,14 @@ body {
   text-align: center;
   font-size: 20px;
   position: relative;
+  cursor: pointer;
 }
 #main-container #fixed-costs .left #list-fixed-costs-admin .line .col:first-child {
   background-color: #98EECC;
   margin-left: 0;
 }
-#main-container #fixed-costs .left #list-fixed-costs-admin .line .col:has(input:checked) {
+#main-container #fixed-costs .left #list-fixed-costs-admin .line .col.done {
   background-color: #1BDD2E;
-}
-#main-container #fixed-costs .left #list-fixed-costs-admin .line .col input {
-  display: none;
-  position: absolute;
-  left: 10px;
-  top: 10px;
-}
-#main-container #fixed-costs .left #list-fixed-costs-admin .line .col:hover input {
-  display: unset;
 }
 #main-container #fixed-costs .left #list-fixed-costs-admin .line:first-child {
   margin-top: 0;
@@ -684,6 +676,9 @@ body {
 #main-container #request-payments #list-request-payments .list .items .row:hover {
   background-color: #f3f3f3;
 }
+#main-container #request-payments #list-request-payments .list .items .more-results {
+  padding: 18px;
+}
 #main-container #request-payments #list-request-payments .operations {
   padding: 0 24px;
 }
@@ -743,34 +738,35 @@ body {
 .pop-up .join-request.of-user {
   display: flex;
   align-items: center;
-  border: 2px solid #ccc;
-  padding: 4px 12px;
   margin-bottom: 18px;
+  background-color: #98EECC;
+  border-radius: 16px;
+  padding: 8px 16px;
 }
 .pop-up .join-request.of-user > * {
   flex: 1;
 }
 .pop-up .join-request.of-user .room-name {
-  color: #5741ff;
   font-size: 20px;
 }
 .pop-up .join-request.of-user .request-date {
   text-align: center;
-  color: #8d8d8d;
+  color: #919191;
 }
 .pop-up .join-request.of-user .status.waitting {
-  color: #e7e73a;
+  color: #ffff5e;
 }
 .pop-up .join-request.of-user .status.accept {
-  color: green;
+  color: #25d725;
 }
 .pop-up .join-request.of-user .status.reject {
-  color: red;
+  color: #ff3e3e;
 }
 .pop-up .join-request.of-user .operation {
   color: #ff5823;
   text-decoration: underline;
   cursor: pointer;
+  font-weight: 600;
 }
 .pop-up .join-request.of-room {
   display: flex;
