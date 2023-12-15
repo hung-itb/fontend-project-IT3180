@@ -377,13 +377,36 @@ function loadFixedCostsView() {
     jCont.find('#list-fixed-costs').toggle(!isAdmin)
 
     function loadMemberView() {
-
+        let jItemsCont = jCont.find('.left #list-fixed-costs .fixed-costs').html('')
+        api.getPayFeeWDStatus(currentRoom.id, false, {
+            onDone: (fees) => {
+                let total = fees.reduce((prev, {pricePerUser, status}) => prev + (status == 0 ? Number(pricePerUser) : 0), 0)
+                jItemsCont.parent().find('.total .value').html(`${total}k`)
+                function add(startIdx, endIdx) {
+                    jItemsCont.find('.more-fwd').remove()
+                    for (var i = startIdx; i <= endIdx && i < fees.length; i++) {
+                        let {feeName, status, pricePerUser} = fees[i]
+                        jItemsCont.append(`<div class="item">
+                            <div class="title">${feeName}</div>
+                            <div class="value${status == 1 ? ' done' : ''}">${pricePerUser}k</div>
+                        </div>`)
+                    }
+                    if (i != fees.length) {
+                        let jMore = $('<div class="more-fwd text-clickable">Hiển thị thêm</div>')
+                        jMore.click(() => add(endIdx + 1, endIdx + limit))
+                        jItemsCont.append(jMore)
+                    }
+                }
+                add(0, limit - 1)
+            }
+        })
     }
 
     function loadAdminView(onlyUserInRoom = true) {
-        jCont.find('.users').html('')
-        jCont.find('.total').html('')
-        api.getPayFeeWDStatus(currentRoom.id, {
+        let jSCont = jCont.find('#list-fixed-costs-admin')
+        jSCont.find('.users').html('')
+        jSCont.find('.total').html('')
+        api.getPayFeeWDStatus(currentRoom.id, true, {
             onDone: ({feesWithDealine, payStatus, users}) => {
                 CustomDateManager.sortByDate(feesWithDealine, x => x.deadline, true)
                 let validUsers = users.filter(({inRoom}) => !onlyUserInRoom || inRoom)
@@ -391,19 +414,20 @@ function loadFixedCostsView() {
                 let mapUserIdToJLine = {}
                 validUsers.forEach(({fullname, id}) => {
                     mapUserIdToJLine[id] = $('<div class="line"></div>').append(`<div class="col">${fullname}</div>`)
-                    jCont.find('.users').append(mapUserIdToJLine[id])
+                    jSCont.find('.users').append(mapUserIdToJLine[id])
                 })
                 let hideOrShowOldMembers = $(`<div class="show-old-members text-clickable">${onlyUserInRoom ? 'Hiển thị' : 'Ẩn'} các thành viên đã rời khỏi phòng</div>`)
-                jCont.find('.users').append(hideOrShowOldMembers)
+                jSCont.find('.users').append(hideOrShowOldMembers)
                 hideOrShowOldMembers.click(() => loadAdminView(!onlyUserInRoom))
-                jCont.find('#list-fixed-costs-admin .total').html('<div class="line"><div class="col">Đã đóng</div></div>')
+                jSCont.find('.total').html('<div class="line"><div class="col">Đã đóng</div></div>')
                 function addFee(startIdx, endIdx) {
-                    jCont.find('#list-fixed-costs-admin .show-more-fees').parent().remove()
+                    jSCont.find('.show-more-fees').parent().remove()
                     let fees = feesWithDealine
                     let j = startIdx
                     for (let i = startIdx; i <= endIdx && i < fees.length; i++) {
                         j++
                         let feeName = fees[i].name
+                        let pricePerUser = fees[i].pricePerUser
                         let idUserDoesnotHasFee = Object.keys(mapUserIdToJLine)
                         let count_pay_done = 0
                         let count_pay_total = 0
@@ -412,15 +436,15 @@ function loadFixedCostsView() {
                             if (status == 1) count_pay_done += 1
                             if (!mapUserIdToJLine[userId]) return
                             let doneClass = status == 1 ? ' done' : ''
-                            let jE = $(`<div class="col${doneClass}">${feeName}</div>`)
+                            let jE = $(`<div class="col${doneClass}">${feeName}<br>${pricePerUser}k</div>`)
                                 .click(() => {
                                     api.changePayFeeWDStatus(userId, fees[i].id, {
                                         onDone: () => {
                                             let oldStatusIsDone = jE.hasClass('done')
                                             jE.toggleClass('done')
-                                            let oldHtml = $(jCont.find('#list-fixed-costs-admin .total .line .col')[i + 1]).html()
+                                            let oldHtml = $(jSCont.find('.total .line .col')[i + 1]).html()
                                             let newHtml = `${Number(oldHtml.split('/')[0]) + (oldStatusIsDone ? -1 : 1)}/${oldHtml.split('/')[1]}`
-                                            $(jCont.find('#list-fixed-costs-admin .total .line .col')[i + 1]).html(newHtml)               
+                                            $(jSCont.find('.total .line .col')[i + 1]).html(newHtml)               
                                         }
                                     })
                                 })
@@ -430,13 +454,13 @@ function loadFixedCostsView() {
                         idUserDoesnotHasFee.forEach(id => {
                             mapUserIdToJLine[id].append(`<div class="col empty"></div>`)
                         })
-                        jCont.find('#list-fixed-costs-admin .total .line').append(`<div class="col">${count_pay_done}/${count_pay_total}</div>`)
+                        jSCont.find('.total .line').append(`<div class="col">${count_pay_done}/${count_pay_total}</div>`)
                     }
                     if (j != fees.length) { // Chưa hết
                         let jShowMoreFees = $('<div class="col empty"><div class="show-more-fees text-clickable">Hiển thị thêm</div></div>')
                             .click(() => addFee(endIdx + 1, endIdx + limit))
-                        jCont.find('#list-fixed-costs-admin .users .line:first-child').append(jShowMoreFees)
-                        jCont.find('#list-fixed-costs-admin .total .line').append(`<div class="col empty"><div class="show-more-fees"></div></div>`)
+                        jSCont.find('.users .line:first-child').append(jShowMoreFees)
+                        jSCont.find('.total .line').append(`<div class="col empty"><div class="show-more-fees"></div></div>`)
                     }
                 }
                 addFee(0, limit - 1)

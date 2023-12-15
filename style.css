@@ -343,6 +343,8 @@ body {
 }
 #main-container #fixed-costs .left #list-fixed-costs .fixed-costs {
   flex: 1;
+  overflow-y: auto;
+  padding: 0 12px;
 }
 #main-container #fixed-costs .left #list-fixed-costs .fixed-costs .item {
   display: flex;
@@ -365,6 +367,11 @@ body {
 }
 #main-container #fixed-costs .left #list-fixed-costs .fixed-costs .item .value.done {
   background-color: #1BDD2E;
+}
+#main-container #fixed-costs .left #list-fixed-costs .fixed-costs .more-fwd {
+  padding: 16px 0;
+  width: -moz-fit-content;
+  width: fit-content;
 }
 #main-container #fixed-costs .left #list-fixed-costs .total {
   display: flex;

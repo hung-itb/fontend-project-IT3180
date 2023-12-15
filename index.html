@@ -28,6 +28,7 @@
         let userId = localStorage.getItem('userId')
         api.getUserInfo(userId, {
             onDone: (resultUser) => {
+                if (!resultUser) window.location.href = './login.html'
                 user = resultUser
             },
             onFailed: () => {
@@ -209,8 +210,8 @@
                     </div>
 
                     <div class="total">
-                        <div class="title">Tổng</div>
-                        <div class="value">40/50</div>
+                        <div class="title">Tổng chi phí phải thanh toán</div>
+                        <div class="value">40k</div>
                     </div>
                 </div>
 

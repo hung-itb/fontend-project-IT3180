@@ -20,11 +20,11 @@ function RandomFunction(seed = 1) {
 function FakeAPI() {
     let NUM_USERS = 100
     let MAX_NUM_SECURITY_QUESTIONS_PER_USER = 4
-    let MAX_NUM_MEMBERS_PER_ROOM = 16
+    let MAX_NUM_MEMBERS_PER_ROOM = 32
     let NUM_ROOMS = 80
     let MAX_NUM_JOIN_ROOM_REQUESTS_PER_USER = 2
     let MAX_NUM_SMALL_TRANSCATION_PER_USER_PER_ROOM = 200
-    let MAX_NUM_FEE_WITH_DEADLINE = 720
+    let MAX_NUM_FEE_WITH_DEADLINE = 100
 
     let random = RandomFunction()
     let randInt = (a, b) => Math.floor(random(a, b + 1))
@@ -460,14 +460,32 @@ function FakeAPI() {
         getFeesWithDeadline: (rid, {onDone}) => {
             onDone(feesWithDealineDAO.getFeesWithDeadline(rid))
         },
-        getPayFeeWDStatus: (rid, {onDone}) => {
+        getPayFeeWDStatus: (rid, allUser, {onDone}) => {
+            if (!allUser) {
+                let uid = localStorage.getItem('userId')
+                let feeWD = feesWithDealineDAO.getFeesWithDeadline(rid)
+                let feeIds = new Set(feeWD.map(({id}) => id))
+                let pairs = user_feeWithDeadline.filter(({feeId, userId}) => feeIds.has(feeId) && userId == uid)
+                pairs = pairs.map(p => {
+                    let fee = feeWD.find(({id}) => id == p.feeId)
+                    p.feeName = fee.name
+                    p.pricePerUser = Math.ceil(fee.price/user_feeWithDeadline.filter(({feeId}) => feeId == fee.id).length)
+                    return p
+                })
+                onDone(pairs)
+                return
+            }
             let feeWD = feesWithDealineDAO.getFeesWithDeadline(rid)
             let feeIds = new Set(feeWD.map(({id}) => id))
             let idUsersInRoom = new Set(userDAO.getUsersOfRoomId(rid).map(({id}) => id))
             let allUsersHasBeenInRoom = userDAO.getUsersOfRoomId(rid, null)
+            let payStatus = user_feeWithDeadline.filter(({feeId}) => feeIds.has(feeId))
+            feeWD.forEach(f => {
+                f.pricePerUser = Math.ceil(f.price/payStatus.filter(({feeId}) => feeId == f.id).length)
+            })
             let data = {
                 feesWithDealine: feeWD,
-                payStatus: user_feeWithDeadline.filter(({feeId}) => feeIds.has(feeId)),
+                payStatus,
                 users: allUsersHasBeenInRoom.map(user => {
                     user.inRoom = idUsersInRoom.has(user.id)
                     return user
