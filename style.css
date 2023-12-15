@@ -403,6 +403,11 @@ body {
   flex: 1;
   overflow: auto;
 }
+#main-container #fixed-costs .left #list-fixed-costs-admin .users .show-old-members {
+  padding: 16px 0;
+  width: -moz-fit-content;
+  width: fit-content;
+}
 #main-container #fixed-costs .left #list-fixed-costs-admin .line {
   white-space: nowrap;
   margin-top: 12px;
@@ -431,6 +436,10 @@ body {
 #main-container #fixed-costs .left #list-fixed-costs-admin .line .col.done {
   background-color: #1BDD2E;
 }
+#main-container #fixed-costs .left #list-fixed-costs-admin .line .col.empty {
+  background-color: unset;
+  cursor: unset;
+}
 #main-container #fixed-costs .left #list-fixed-costs-admin .line:first-child {
   margin-top: 0;
 }
@@ -446,6 +455,10 @@ body {
 }
 #main-container #fixed-costs .left #list-fixed-costs-admin .total .line .col:last-child {
   margin-right: 17px;
+}
+#main-container #fixed-costs .left #list-fixed-costs-admin .total .line .col.empty {
+  background-color: unset;
+  cursor: unset;
 }
 #main-container #fixed-costs .left #list-fixed-costs-admin .total::-webkit-scrollbar {
   display: none;

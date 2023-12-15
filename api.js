@@ -266,8 +266,8 @@ function FakeAPI() {
             findUserById: (id) => users.find(user => user.id == id),
             saveUser: (user) => users.push(user),
             getRoomIdsOfUserId: (uid) => [...new Set(room_user.filter(({userId}) => userId == uid).map(({roomId}) => roomId))],
-            getUsersOfRoomId: (rid) => {
-                let userIds = new Set(room_user.filter(({roomId, status}) => roomId == rid && status == 1).map(({userId}) => userId))
+            getUsersOfRoomId: (rid, _status = 1) => {
+                let userIds = new Set(room_user.filter(({roomId, status}) => roomId == rid && (!_status || _status == status)).map(({userId}) => userId))
                 return users.filter(({id}) => userIds.has(id))
             }
         }
@@ -459,6 +459,26 @@ function FakeAPI() {
         },
         getFeesWithDeadline: (rid, {onDone}) => {
             onDone(feesWithDealineDAO.getFeesWithDeadline(rid))
+        },
+        getPayFeeWDStatus: (rid, {onDone}) => {
+            let feeWD = feesWithDealineDAO.getFeesWithDeadline(rid)
+            let feeIds = new Set(feeWD.map(({id}) => id))
+            let idUsersInRoom = new Set(userDAO.getUsersOfRoomId(rid).map(({id}) => id))
+            let allUsersHasBeenInRoom = userDAO.getUsersOfRoomId(rid, null)
+            let data = {
+                feesWithDealine: feeWD,
+                payStatus: user_feeWithDeadline.filter(({feeId}) => feeIds.has(feeId)),
+                users: allUsersHasBeenInRoom.map(user => {
+                    user.inRoom = idUsersInRoom.has(user.id)
+                    return user
+                })
+            }
+            onDone(data)
+        },
+        changePayFeeWDStatus: (uid, fid, {onDone}) => {
+            let pair = user_feeWithDeadline.find(({feeId, userId}) => feeId == fid && uid == userId)
+            pair.status = !pair.status
+            onDone()
         },
         deleteFeeWithDeadline: (fid, {onDone}) => {
             feesWithDealine = feesWithDealine.filter(({id}) => id != fid)

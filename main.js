@@ -371,6 +371,7 @@ function loadListRoomMembersView() {
 function loadFixedCostsView() {
     let isAdmin = (user.id == currentRoom.adminUserId)
     let jCont = $('#fixed-costs')
+    let limit = 5
 
     jCont.find('#list-fixed-costs-admin').toggle(isAdmin)
     jCont.find('#list-fixed-costs').toggle(!isAdmin)
@@ -379,11 +380,68 @@ function loadFixedCostsView() {
 
     }
 
-    function loadAdminView() {
-        function load() {
-
-        }
-        api.getFees
+    function loadAdminView(onlyUserInRoom = true) {
+        jCont.find('.users').html('')
+        jCont.find('.total').html('')
+        api.getPayFeeWDStatus(currentRoom.id, {
+            onDone: ({feesWithDealine, payStatus, users}) => {
+                CustomDateManager.sortByDate(feesWithDealine, x => x.deadline, true)
+                let validUsers = users.filter(({inRoom}) => !onlyUserInRoom || inRoom)
+                validUsers.sort((u1, u2) => (u2.inRoom ? 1 : 0) - (u1.inRoom ? 1 : 0))
+                let mapUserIdToJLine = {}
+                validUsers.forEach(({fullname, id}) => {
+                    mapUserIdToJLine[id] = $('<div class="line"></div>').append(`<div class="col">${fullname}</div>`)
+                    jCont.find('.users').append(mapUserIdToJLine[id])
+                })
+                let hideOrShowOldMembers = $(`<div class="show-old-members text-clickable">${onlyUserInRoom ? 'Hiển thị' : 'Ẩn'} các thành viên đã rời khỏi phòng</div>`)
+                jCont.find('.users').append(hideOrShowOldMembers)
+                hideOrShowOldMembers.click(() => loadAdminView(!onlyUserInRoom))
+                jCont.find('#list-fixed-costs-admin .total').html('<div class="line"><div class="col">Đã đóng</div></div>')
+                function addFee(startIdx, endIdx) {
+                    jCont.find('#list-fixed-costs-admin .show-more-fees').parent().remove()
+                    let fees = feesWithDealine
+                    let j = startIdx
+                    for (let i = startIdx; i <= endIdx && i < fees.length; i++) {
+                        j++
+                        let feeName = fees[i].name
+                        let idUserDoesnotHasFee = Object.keys(mapUserIdToJLine)
+                        let count_pay_done = 0
+                        let count_pay_total = 0
+                        payStatus.filter(({feeId}) => feeId == fees[i].id).forEach(({userId, status}) => {
+                            count_pay_total += 1
+                            if (status == 1) count_pay_done += 1
+                            if (!mapUserIdToJLine[userId]) return
+                            let doneClass = status == 1 ? ' done' : ''
+                            let jE = $(`<div class="col${doneClass}">${feeName}</div>`)
+                                .click(() => {
+                                    api.changePayFeeWDStatus(userId, fees[i].id, {
+                                        onDone: () => {
+                                            let oldStatusIsDone = jE.hasClass('done')
+                                            jE.toggleClass('done')
+                                            let oldHtml = $(jCont.find('#list-fixed-costs-admin .total .line .col')[i + 1]).html()
+                                            let newHtml = `${Number(oldHtml.split('/')[0]) + (oldStatusIsDone ? -1 : 1)}/${oldHtml.split('/')[1]}`
+                                            $(jCont.find('#list-fixed-costs-admin .total .line .col')[i + 1]).html(newHtml)               
+                                        }
+                                    })
+                                })
+                            mapUserIdToJLine[userId].append(jE)
+                            idUserDoesnotHasFee = idUserDoesnotHasFee.filter(id => id != userId)
+                        })
+                        idUserDoesnotHasFee.forEach(id => {
+                            mapUserIdToJLine[id].append(`<div class="col empty"></div>`)
+                        })
+                        jCont.find('#list-fixed-costs-admin .total .line').append(`<div class="col">${count_pay_done}/${count_pay_total}</div>`)
+                    }
+                    if (j != fees.length) { // Chưa hết
+                        let jShowMoreFees = $('<div class="col empty"><div class="show-more-fees text-clickable">Hiển thị thêm</div></div>')
+                            .click(() => addFee(endIdx + 1, endIdx + limit))
+                        jCont.find('#list-fixed-costs-admin .users .line:first-child').append(jShowMoreFees)
+                        jCont.find('#list-fixed-costs-admin .total .line').append(`<div class="col empty"><div class="show-more-fees"></div></div>`)
+                    }
+                }
+                addFee(0, limit - 1)
+            }
+        })
     }
 
     if (isAdmin) loadAdminView()

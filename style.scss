@@ -471,6 +471,11 @@ body {
                 .users {
                     flex: 1;
                     overflow: auto;
+
+                    .show-old-members {
+                        padding: 16px 0;
+                        width: fit-content;
+                    }
                 }
 
                 .line {
@@ -501,6 +506,11 @@ body {
                         &.done {
                             background-color: #1BDD2E;
                         }
+
+                        &.empty {
+                            background-color: unset;
+                            cursor: unset;
+                        }
                     }
 
                     &:first-child {
@@ -521,6 +531,11 @@ body {
 
                         &:last-child {
                             margin-right: 17px;
+                        }
+
+                        &.empty {
+                            background-color: unset;
+                            cursor: unset;
                         }
                     }
 

@@ -275,7 +275,6 @@ function FormManager(jForm, option) {
             jForm.find('.errors').html(
                 errors.map(err => `* <span class="errors">${err}</span>`).join('<br>')
             )
-            l('error')
         }
     })
 }
