@@ -284,3 +284,37 @@ function resizeImg(jImgs) {
     if (h != 0) jImgs.width(h)
     else setTimeout(() => resizeImg(jImgs), 1)
 }
+
+function $Chart(cats, values, { xlabel, ylabel, valTrans, maxHeight = 0.8 } = {}) {
+    let $chart = $('<div class="chart"></div>')
+
+    if (ylabel) {
+        let $left = $('<div class="left"></div>')
+        $chart.append($left)
+        $left.append($(`<div class="ylabel">${ylabel}</div>`))
+    }
+
+    let $right = $('<div class="right"></div>')
+    $chart.append($right)
+
+    let $mainChart = $('<div class="main-chart"></div>')
+    $right.append($mainChart)
+    let maxValue = values.reduce((max, v) => Math.max(max, v), -10e10)
+    values.forEach(value => {
+        let $col = $('<div class="col"></div>')
+        $col.append(`<div class="value-explain">${valTrans ? valTrans(value) : value}</div>`)
+        $col.append($(`<div class="val-visualize"></div>`).css('height', (maxHeight*value*100/maxValue) + '%'))
+        $mainChart.append($col)
+    })
+
+    let $columnExplain = $('<div class="column-explain"></div>').html(
+        cats.map(cat => `<div class="col">${cat}</div>`).join('')
+    )
+    $right.append($columnExplain)
+
+    if (xlabel) {
+        $right.append($(`<div class="xlabel">${xlabel}</div>`))
+    }
+
+    return $chart
+}
