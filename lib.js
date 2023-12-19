@@ -318,3 +318,21 @@ function $Chart(cats, values, { xlabel, ylabel, valTrans, maxHeight = 0.8 } = {}
 
     return $chart
 }
+
+function OCPHS(s, f, hasCondition = false) {
+    let r = {}
+    for (let i of s) {
+        let [k, v, c] = f(i)
+        if (!hasCondition || c) r[k] = v
+    }
+    return r
+}
+
+function ACPHS(s, f, hasCondition = false) {
+    let r = []
+    for (let i of s) {
+        let [v, c] = f(i)
+        if (!hasCondition || c) r.push(v)
+    }
+    return r
+}
