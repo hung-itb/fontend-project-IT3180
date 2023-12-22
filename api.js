@@ -360,7 +360,7 @@ function FakeAPI() {
         }
     })()
 
-    return {
+    let a = {
         login: function (username, password, {onDone, onFailed}) {
             let user = userDAO.findUserByUsername(username)
             if (!user) {
@@ -581,8 +581,48 @@ function FakeAPI() {
                 joinDate: CustomDateManager.now()
             })
             onDone()
+        },
+        allRoomsStatistic: (month, year, {onDone}) => {
+            let uid = localStorage.getItem('userId')
+            let roomIds = userDAO.getRoomIdsOfUserId(uid)
+            let result = []
+            roomIds.forEach(rid => {
+                let total = smallTransactionsDAO.getSmallTransaction(rid, month, year).reduce((prev, {price}) => prev + price, 0)
+                total += feesWithDealineDAO.getFeesWithDeadline(rid).filter(({deadline}) => {
+                    let [d, m, y] = deadline.split('/').map(x => Number(x))
+                    return m == month && y == year
+                }).reduce((prev, {price}) => prev + price, 0)
+                total = Math.round(total/roomDAO.getNumUsersEarlyThisMonth(rid))
+                result.push({
+                    roomName: roomDAO.getRoomById(rid).roomName,
+                    totalSpending: total
+                })
+            })
+            onDone(result)
+        },
+        totalSpendingRecent12Months: ({onDone}) => {
+            let currMonth = new Date().getMonth() + 1
+            let currYear = new Date().getFullYear()
+            let result = []
+            for (let i = 0; i < 12; i++) {
+                // - 1 month
+                if (currMonth == 1) {
+                    currMonth = 12
+                    currYear --
+                } else {
+                    currMonth--
+                }
+                a.allRoomsStatistic(currMonth, currYear, {
+                    onDone: (rooms) => {
+                        result.push(rooms.reduce((p, {totalSpending}) => p + totalSpending, 0))
+                    }
+                })
+            }
+            result.reverse()
+            onDone(result)
         }
     }
+    return a
 }
 
 function TrueAPI() {

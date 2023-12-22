@@ -75,6 +75,54 @@ form .errors {
   width: 600px;
 }
 
+.chart {
+  display: flex;
+}
+.chart .left {
+  display: flex;
+  justify-content: center;
+}
+.chart .left .ylabel {
+  writing-mode: tb-rl;
+  transform: rotate(180deg);
+  text-align: center;
+}
+.chart .right {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.chart .right .main-chart {
+  flex: 1;
+  display: flex;
+  border: 1px solid;
+}
+.chart .right .main-chart .col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: end;
+}
+.chart .right .main-chart .col .value-explain {
+  text-align: center;
+}
+.chart .right .main-chart .col .val-visualize {
+  background-color: #79E0EE;
+}
+.chart .right .main-chart .col .val-visualize:hover {
+  background-color: #5bcbda;
+}
+.chart .right .column-explain {
+  display: flex;
+}
+.chart .right .column-explain .col {
+  flex: 1;
+  text-align: center;
+}
+.chart .right .xlabel {
+  text-align: center;
+}
+
 .text-clickable {
   text-decoration: underline;
   color: #1DB435;

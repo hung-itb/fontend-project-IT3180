@@ -719,26 +719,30 @@ body {
   flex-direction: column;
   justify-content: space-between;
 }
-#main-container #list-rooms .room {
-  background-color: #98EECC;
-  height: 100%;
-  padding: 12px;
-  cursor: pointer;
-}
-#main-container #list-rooms .room .title {
-  font-weight: 600;
-}
-#main-container #list-rooms .room:hover {
-  background-color: #6bd1a8;
-}
-#main-container #list-rooms .main-rooms {
+#main-container #list-rooms .my-statisic {
   display: flex;
   justify-content: space-evenly;
   height: 40%;
 }
-#main-container #list-rooms .main-rooms .room {
-  width: 32%;
-  font-size: 40px;
+#main-container #list-rooms .my-statisic .room {
+  width: 40%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+#main-container #list-rooms .my-statisic .room .choose-month {
+  display: flex;
+  height: 40px;
+  background-color: #98EECC;
+  align-items: center;
+  justify-content: space-evenly;
+}
+#main-container #list-rooms .my-statisic .room .choose-month img {
+  height: 32px;
+  cursor: pointer;
+}
+#main-container #list-rooms .my-statisic .room .choose-month img:hover {
+  opacity: 0.5;
 }
 #main-container #list-rooms .normal-rooms {
   height: 25%;
@@ -750,6 +754,16 @@ body {
   display: inline-block;
   margin-left: 56px;
   font-size: 24px;
+  background-color: #98EECC;
+  height: 100%;
+  padding: 12px;
+  cursor: pointer;
+}
+#main-container #list-rooms .normal-rooms .room .title {
+  font-weight: 600;
+}
+#main-container #list-rooms .normal-rooms .room:hover {
+  background-color: #6bd1a8;
 }
 #main-container #list-rooms .normal-rooms .room:first-child {
   margin-left: 0;

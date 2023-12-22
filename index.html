@@ -377,13 +377,17 @@
 
         <!-- Danh sách phòng -->
         <div id="list-rooms" style="display: none;">
-            <div class="main-rooms">
+            <div class="my-statisic">
                 <div class="room">
-                    <div class="title">Phòng 1</div>
+                    <div class="choose-month">
+                        <img src="./resources/prev.png" alt="" class="prev">
+                        <div class="month">Tháng 12</div>
+                        <img src="./resources/next.png" alt="" class="next">
+                    </div>
                 </div>
 
-                <div class="room">
-                    <div class="title">Phòng 2</div>
+                <div class="total-spending-each-month">
+                    
                 </div>
             </div>
 
@@ -448,24 +452,88 @@
             $('#left-side-bar .item[tab-id="request-payments"]').toggle(isAdmin)
         }
 
+        let initEventAllRoomStatistic = false
         function loadListRoomViews(rooms) {
-            $('#list-rooms .main-rooms').html('')
-            for (let i = 0; i < rooms.length && i < 2; i++) {
-                let roomHtml = (`
-                    <div class="room">
-                        <div class="title">${rooms[i].roomName}</div>
-                    </div>
-                `)
-                let jRoom = $(roomHtml)
-                $('#list-rooms .main-rooms').append(jRoom)
-                jRoom.click(() => {
-                    currentRoom = rooms[i]
-                    showRoomDetails()
+            let s = false
+            let $statistic = $('#list-rooms .my-statisic')
+            $statistic.find('.chart').remove()
+
+            let currMonth = new Date().getMonth() + 1
+            let currYear = new Date().getFullYear()
+            // - 1 month
+            if (currMonth == 1) {
+                currMonth = 12
+                currYear --
+            } else {
+                currMonth--
+            }
+            function makeAllRoomStatisticChart() {
+                $statistic.find('.room .month').html(`Tháng ${currMonth}${currYear == new Date().getFullYear() ? '' : ' năm ' + currYear}`)
+                api.allRoomsStatistic(currMonth, currYear, {
+                    onDone: (rooms) => {
+                        $statistic.find('.room .chart').remove()
+                        let roomNames = rooms.map(({roomName}) => roomName)
+                        let totalSpendingOfRoom = OCPHS(rooms, ({roomName, totalSpending}) => [roomName, totalSpending])
+                        roomNames.sort((r1, r2) => totalSpendingOfRoom[r2] - totalSpendingOfRoom[r1])
+                        let totalSpending = roomNames.map(r => totalSpendingOfRoom[r])
+                        let $chart = $Chart(roomNames, totalSpending, {xlabel: 'Phòng'})
+                        $statistic.find('.room').append($chart)
+                        $chart.css({
+                            flex: 1
+                        })
+                    }
+                })
+            }
+            if (s) makeAllRoomStatisticChart()
+            if (!initEventAllRoomStatistic) {
+                initEventAllRoomStatistic = true
+                $statistic.find('.room .choose-month .prev').click(() => {
+                    if (currMonth == 1) {
+                        currMonth = 12
+                        currYear --
+                    } else {
+                        currMonth--
+                    }
+                    makeAllRoomStatisticChart()
+                })
+                $statistic.find('.room .choose-month .next').click(() => {
+                    if (currMonth == 12) {
+                        currMonth = 1
+                        currYear++
+                    } else {
+                        currMonth++
+                    }
+                    makeAllRoomStatisticChart()
                 })
             }
 
+            // Statistic total spending each month
+            if (s) {
+                api.totalSpendingRecent12Months({onDone: (result) => {
+                    let currMonth = new Date().getMonth() + 1
+                    let currYear = new Date().getFullYear()
+
+                    let labels = []
+                    for (let i = 0; i < 12; i++) {
+                        // - 1 month
+                        if (currMonth == 1) {
+                            currMonth = 12
+                            currYear --
+                        } else {
+                            currMonth--
+                        }
+                        labels.push('Tháng ' + currMonth + (currYear == new Date().getFullYear() ? '' : ' năm ' + currYear))
+                    }
+                    let $chart = $Chart(labels.reverse(), result)
+                    $statistic.find('.total-spending-each-month').append($chart)
+                    $chart.css({
+                        height: '100%'
+                    })
+                }})
+            }
+
             $('#list-rooms .normal-rooms').html('')
-            for (let i = 2; i < rooms.length; i++) {
+            for (let i = 0; i < rooms.length; i++) {
                 let roomHtml = (`
                     <div class="room">
                         <div class="title">${rooms[i].roomName}</div>

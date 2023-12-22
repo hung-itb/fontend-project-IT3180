@@ -850,29 +850,33 @@ body {
         flex-direction: column;
         justify-content: space-between;
 
-        .room {
-            background-color: #98EECC;
-            height: 100%;
-            padding: 12px;
-            cursor: pointer;
-
-            .title {
-                font-weight: 600;
-            }
-
-            &:hover {
-                background-color: #6bd1a8;
-            }
-        }
-
-        .main-rooms {
+        .my-statisic {
             display: flex;
             justify-content: space-evenly;
             height: 40%;
 
             .room {
-                width: 32%;
-                font-size: 40px;
+                width: 40%;
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+
+                .choose-month {
+                    display: flex;
+                    height: 40px;
+                    background-color: #98EECC;
+                    align-items: center;
+                    justify-content: space-evenly;
+
+                    img {
+                        height: 32px;
+                        cursor: pointer;
+
+                        &:hover {
+                            opacity: 0.5;
+                        }
+                    }
+                }
             }
         }
 
@@ -886,6 +890,18 @@ body {
                 display: inline-block;
                 margin-left: 56px;
                 font-size: 24px;
+                background-color: #98EECC;
+                height: 100%;
+                padding: 12px;
+                cursor: pointer;
+
+                .title {
+                    font-weight: 600;
+                }
+    
+                &:hover {
+                    background-color: #6bd1a8;
+                }
 
                 &:first-child {
                     margin-left: 0;
