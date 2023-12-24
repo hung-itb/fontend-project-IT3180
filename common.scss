@@ -43,6 +43,7 @@ form {
 	left: 0;
 	bottom: 0;
 	right: 0;
+	font-size: 20px;
 
 	.pop-up {
 		position: absolute;
@@ -120,9 +121,11 @@ form {
 
 				.val-visualize {
 					background-color: #79E0EE;
+				}
 
-					&:hover {
-						background-color: #5bcbda;
+				&:nth-child(even) {
+					.val-visualize {
+						background-color: #67d5e4;
 					}
 				}
 			}

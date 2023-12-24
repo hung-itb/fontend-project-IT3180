@@ -67,14 +67,15 @@
             </div>
         </div>
         <div id="nav-right-side">
-            <input type="text" placeholder="Message" class="message">
-            <img src="./resources/default-avatar.jpg" alt="" id="user-icon">
+            <div class="user-icon-wrapper">
+                <img src="./resources/default-avatar.jpg" alt="" id="user-icon">
+            </div>
             <div class="log-out text-clickable">Log out</div>
 
             <!-- Redirect to login.html when user logout -->
             <script>
                 let jImg = $('#nav-right-side img')
-                jImg.width(jImg.height())
+                $(() => jImg.width(jImg.height()))
                 jImg.attr('src', user.avatarUrl || './resources/user-images/default-avatar.jpg')
                 $('#nav-right-side .log-out').click(() => {
                     api.logout({
@@ -103,11 +104,11 @@
             <div class="item" tab-id="fixed-costs">
                 <span>Chi phí cố định</span>
             </div>
-            <div class="item" tab-id="room-members">
-                <span>Thành viên</span>
-            </div>
             <div class="item" tab-id="request-payments">
                 <span>Yêu cầu đóng phí</span>
+            </div>
+            <div class="item" tab-id="room-members">
+                <span>Thông tin phòng</span>
             </div>
 
             <!-- Switch tab handler -->
@@ -303,6 +304,15 @@
 
         <!-- Danh sách thành viên phòng -->
         <div class="content" id="room-members" style="display: none;">
+            <div class="room-info">
+                <div class="room-name">Tên phòng: <span class="value">123</span></div>
+                <div class="room-address">Địa chỉ: <span class="value">123</span></div>
+                <div class="room-id">ID phòng: <span class="value">123</span></div>
+                <div class="operations">
+                    <div class="leave-room text-clickable">Rời khỏi phòng</div>
+                    <div class="change-admin text-clickable">Chuyển quyền trưởng phòng</div>
+                </div>
+            </div>
             <div class="list-members">
                 <div class="header">
                     Danh sách thành viên
@@ -387,7 +397,11 @@
                 </div>
 
                 <div class="total-spending-each-month">
-                    
+                    <div class="choose-year">
+                        <img src="./resources/prev.png" alt="" class="prev">
+                        <div class="year">2023</div>
+                        <img src="./resources/next.png" alt="" class="next">
+                    </div>
                 </div>
             </div>
 
@@ -428,7 +442,21 @@
 
     <div class="pop-up-wrap" style="display: none;">
         <div class="pop-up">
+            <div class="content user-profile">
+                <div class="avatar">
+                    <img src="./resources/user-images/default-avatar.jpg" alt="">
+                    <button>Thay đổi ảnh</button>
+                </div>
+                <input type="text" name="fullname" class="primary">
+                <input type="text" name="phoneNumber" class="primary">
+                <input type="text" name="bankName" class="primary">
+                <input type="text" name="bankNumber" class="primary">
 
+                <div class="more-ops">
+                    <div class="text-clickable">Thay đổi mật khẩu</div>
+                    <div class="text-clickable">Quản lý câu hỏi bảo mật</div>
+                </div>
+            </div>
             <div class="button-group">
                 <button class="close primary">Đóng</button>
             </div>
@@ -454,7 +482,7 @@
 
         let initEventAllRoomStatistic = false
         function loadListRoomViews(rooms) {
-            let s = false
+            let s = true
             let $statistic = $('#list-rooms .my-statisic')
             $statistic.find('.chart').remove()
 
@@ -476,7 +504,7 @@
                         let totalSpendingOfRoom = OCPHS(rooms, ({roomName, totalSpending}) => [roomName, totalSpending])
                         roomNames.sort((r1, r2) => totalSpendingOfRoom[r2] - totalSpendingOfRoom[r1])
                         let totalSpending = roomNames.map(r => totalSpendingOfRoom[r])
-                        let $chart = $Chart(roomNames, totalSpending, {xlabel: 'Phòng'})
+                        let $chart = $Chart(roomNames, totalSpending)
                         $statistic.find('.room').append($chart)
                         $chart.css({
                             flex: 1
@@ -485,8 +513,30 @@
                 })
             }
             if (s) makeAllRoomStatisticChart()
+
+            // Statistic total spending each month
+            let currYearToStatisticEachMonth = new Date().getFullYear()
+            function makeStatisticEachMonthChart() {
+                $statistic.find('.total-spending-each-month .chart').remove()
+                $statistic.find('.total-spending-each-month .year').html('Năm ' + currYearToStatisticEachMonth)
+                api.totalSpendingEachMonthOfYear(currYearToStatisticEachMonth, {
+                    onDone: (result) => {
+                        let labels = range(12).map(i => `Tháng<br>${i + 1}`)
+                        let $chart = $Chart(labels, result)
+                        $statistic.find('.total-spending-each-month').append($chart)
+                        $chart.css({
+                            flex: 1
+                        })
+                    }
+                })
+            }
+            if (s) makeStatisticEachMonthChart()
+
+            // Switch year and month event
             if (!initEventAllRoomStatistic) {
                 initEventAllRoomStatistic = true
+                
+                // First chart
                 $statistic.find('.room .choose-month .prev').click(() => {
                     if (currMonth == 1) {
                         currMonth = 12
@@ -505,31 +555,16 @@
                     }
                     makeAllRoomStatisticChart()
                 })
-            }
 
-            // Statistic total spending each month
-            if (s) {
-                api.totalSpendingRecent12Months({onDone: (result) => {
-                    let currMonth = new Date().getMonth() + 1
-                    let currYear = new Date().getFullYear()
-
-                    let labels = []
-                    for (let i = 0; i < 12; i++) {
-                        // - 1 month
-                        if (currMonth == 1) {
-                            currMonth = 12
-                            currYear --
-                        } else {
-                            currMonth--
-                        }
-                        labels.push('Tháng ' + currMonth + (currYear == new Date().getFullYear() ? '' : ' năm ' + currYear))
-                    }
-                    let $chart = $Chart(labels.reverse(), result)
-                    $statistic.find('.total-spending-each-month').append($chart)
-                    $chart.css({
-                        height: '100%'
-                    })
-                }})
+                // Second chart
+                $statistic.find('.total-spending-each-month .choose-year .prev').click(() => {
+                    currYearToStatisticEachMonth--
+                    makeStatisticEachMonthChart()
+                })
+                $statistic.find('.total-spending-each-month .choose-year .next').click(() => {
+                    currYearToStatisticEachMonth++
+                    makeStatisticEachMonthChart()
+                })
             }
 
             $('#list-rooms .normal-rooms').html('')
@@ -653,7 +688,7 @@
                                 let jElem = $(html)
                                 jPopUp.find('.content').append(jElem)
                                 jElem.find('.operation').click(() => {
-                                    api.rejectJoinRoomRequest(roomId, null, {
+                                    api.cancelJoinRoomRequest(roomId, {
                                         onDone: () => {
                                             jElem.find('.operation').text('')
                                             jElem.find('.status').text('Đã hủy').removeClass('waitting').addClass('reject')
@@ -694,7 +729,7 @@
                                 let jElem = $(html)
                                 jPopUp.find('.content').append(jElem)
                                 jElem.find('.operation .accept').click(() => {
-                                    api.acceptJoinRoomRequest(currentRoom.id, userId, {
+                                    api.acceptJoinRoomRequest(currentRoom.id, userId, true, {
                                         onDone: () => {
                                             jElem.remove()
                                             loadListRoomMembersView()
@@ -702,7 +737,7 @@
                                     })
                                 })
                                 jElem.find('.operation .reject').click(() => {
-                                    api.rejectJoinRoomRequest(currentRoom.id, userId, {
+                                    api.acceptJoinRoomRequest(currentRoom.id, userId, false, {
                                         onDone: () => {
                                             jElem.remove()
                                             let countReqs = $('#view-join-room-req-of-room .count')

@@ -206,3 +206,36 @@ Nếu userId khác null thì có nghĩa là admin của phòng roomId từ chố
     userId
 }
 - Trả về: Thành công
+
+24) Thống kê tổng số tiền mà người dùng phải chi cho mỗi phòng mà họ tham gia trong tháng và năm chỉ định
+- Đấu vào {
+    month
+    year
+}
+
+- Trả về mảng, mỗi phần tử là 1 object như sau {
+    roomName // Tên phòng
+    totalSpending // Tổng số tiền chi tiêu cho phòng này
+}
+
+25) Thống kê tổng số tiền mà người dùng phải chi cho tất cả các phòng mà họ tham gia trong 12 tháng của năm chỉ định
+- Đấu vào {
+    year
+}
+
+- Trả về mảng gồm 12 phần tử, phần tử thứ i là tổng số tiền chi tiêu của tháng i
+
+26) Chuyển quyền trưởng phòng
+- Đầu vào {
+    roomId,
+    newAdminId
+}
+- Trả về: Thành công
+
+27) Rời phòng
+- Đầu vào: {
+    roomId
+}
+
+- Trả về: Thành công
+Sẽ thất bại nếu user là trưởng phòng và số thành viên lớn hơn 1, khi đó trả về tin nhắn lỗi là "ROOM_ADMIN_CAN_NOT_LEAVE_ROOM"

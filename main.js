@@ -323,6 +323,7 @@ function loadInputTransactionView() {
     reloadQuickInfo()
 }
 
+let initedEventListRoomMembersView = false
 function loadListRoomMembersView() {
     $('#view-join-room-req-of-room').toggle(user.id == currentRoom.adminUserId)
     let countReqs = $('#view-join-room-req-of-room .count').hide()
@@ -343,9 +344,6 @@ function loadListRoomMembersView() {
                 <div class="phone">${phoneNumber}</div>
                 <div class="bank">
                     ${bankName}: ${bankNumber}
-                    <div class="more-info">
-                        Chi tiết
-                    </div>
                 </div>
             </div>
         `
@@ -366,6 +364,61 @@ function loadListRoomMembersView() {
             jImgs.width(jImgs.height())
         }
     })
+
+    jCont.find('.room-info .room-name .value').html(currentRoom.roomName)
+    jCont.find('.room-info .room-address .value').html(currentRoom.address)
+    jCont.find('.room-info .room-id .value').html(currentRoom.id)
+    jCont.find('.room-info .change-admin').toggle(currentRoom.isAdmin)
+
+    if (!initedEventListRoomMembersView) {
+        initedEventListRoomMembersView = true
+        jCont.find('.room-info .change-admin').click(() => {
+            api.getUsersOfRoomId(currentRoom.id, {
+                onDone: (users) => {
+                    let html = `
+                        Chọn thành viên làm trường phòng<br>
+                        <select>
+                            ${users.map(({id, fullname}) => `<option value="${id}">${fullname}</option>`).join('')}
+                        </select>
+                    `
+                    popUp(html, {
+                        script: ($popUp) => {
+                            $popUp.find('select').val(user.id)
+                        },
+                        hideCloseButton: true,
+                        buttonHtmls: ['Thoát', 'Lưu lại'],
+                        buttonClickHandlers: [$pu => $pu.remove(), ($pu) => {
+                            let newUserId = $pu.find('select').val()
+                            if (newUserId == user.id) {
+                                $pu.remove()
+                                return
+                            }
+                            popUpConfirm('Bạn có chắc chắn muốn nhượng quyền trưởng phòng không?', () => {
+                                $pu.remove()
+                                api.changeAdmin({
+                                    roomId: currentRoom.id,
+                                    newAdminId: newUserId
+                                }, () => {
+                                    showListRooms()
+                                })
+                            })
+                        }]
+                    })
+                }
+            })
+        })
+        jCont.find('.room-info .leave-room').click(() => {
+            popUpConfirm('Bạn có chắc chắn muốn rời khỏi phòng không?', () => {
+                api.leaveRoom({roomId: currentRoom.id}, () => {
+                    showListRooms()
+                }, (m) => {
+                    if (m == ERROR.ROOM_ADMIN_CAN_NOT_LEAVE_ROOM) {
+                        popUpMessage('Bạn cần phải chuyển quyền trưởng phòng cho người khác trước khi rời phòng!')
+                    }
+                })
+            })
+        })
+    }
 }
 
 function loadFixedCostsView() {
@@ -630,3 +683,25 @@ $('#left-side-bar .item[tab-id="input-transaction"]').click(loadInputTransaction
 $('#left-side-bar .item[tab-id="room-members"]').click(loadListRoomMembersView)
 $('#left-side-bar .item[tab-id="fixed-costs"]').click(loadFixedCostsView)
 $('#left-side-bar .item[tab-id="request-payments"]').click(loadRequestPaymentsView)
+
+addFloatElement($('.user-icon-wrapper')[0], 'Thông tin cá nhân', {
+    relativePosition: 'middle-bottom',
+    style: {
+        padding: '8px',
+        cursor: 'pointer'
+    },
+    displayCondition: 'hover',
+    script: (fE) => {
+        $fE = $(fE)
+        $fE.click(() => {
+            $fE.hide()
+            setTimeout(() => $fE.show(), 100)
+            popUp(`
+                <input type="text" class="primary" name="fullname">
+                <input type="text" class="primary" name="phoneNumber">
+                <input type="text" class="primary" name="bankName">
+                <input type="text" class="primary" name="bankNumber">
+            `)
+        })
+    }
+})

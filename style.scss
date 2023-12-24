@@ -105,24 +105,20 @@ body {
         display: flex;
         align-items: center;
 
-        input {
-            height: 69%;
-            margin-right: 30px;
-            border: none;
-            background-color: #ccc;
-            border-radius: 40px;
-            width: 250px;
-            padding-left: 18px;
-
-            &::placeholder {
-                color: black;
-            }
-        }
-
-        img {
+        .user-icon-wrapper {
             height: 100%;
-            object-fit: cover;
-            border-radius: 50%;
+
+            img {
+                height: 100%;
+                object-fit: cover;
+                border-radius: 50%;
+            }
+
+            .float-element {
+                &:hover {
+                    background-color: #ccc!important;
+                }
+            }
         }
 
         .log-out {
@@ -630,11 +626,33 @@ body {
     #room-members {
         padding: 20px;
         padding-right: 40px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        
+        .room-info {
+            .room-name {
+                font-size: 64px;
+            }
+
+            .value {
+                color: red;
+            }
+
+            .operations {
+                display: flex;
+                margin-bottom: 16px;
+
+                & > * {
+                    margin-right: 20px;
+                }
+            }
+        }
 
         .list-members {
             background-color: #79E0EE;
             width: 100%;
-            height: 100%;
+            flex: 1;
             padding: 30px;
             overflow-y: auto;
             position: relative;
@@ -856,12 +874,36 @@ body {
             height: 40%;
 
             .room {
-                width: 40%;
+                width: 45%;
                 height: 100%;
                 display: flex;
                 flex-direction: column;
 
                 .choose-month {
+                    display: flex;
+                    height: 40px;
+                    background-color: #98EECC;
+                    align-items: center;
+                    justify-content: space-evenly;
+
+                    img {
+                        height: 32px;
+                        cursor: pointer;
+
+                        &:hover {
+                            opacity: 0.5;
+                        }
+                    }
+                }
+            }
+
+            .total-spending-each-month {
+                display: flex;
+                flex-direction: column;
+                height: 100%;
+                width: 45%;
+
+                .choose-year {
                     display: flex;
                     height: 40px;
                     background-color: #98EECC;
@@ -908,6 +950,10 @@ body {
                 }
             }
         }
+    }
+
+    #room-info {
+
     }
 }
 
@@ -999,6 +1045,32 @@ body {
                 &:last-child {
                     margin-left: 6px;
                 }
+            }
+        }
+    }
+
+    .user-profile {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        .avatar {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+
+            img {
+                height: 150px;
+            }
+
+            button {
+                margin-top: 12px;
+            }
+        }
+
+        input {
+            &[name="fullname"] {
+                margin-top: 24px;
             }
         }
     }

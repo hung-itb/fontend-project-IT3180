@@ -18,6 +18,7 @@ function addFloatElement(e, html, option = null) {
 
     let floatElement = document.createElement('div')
     floatElement.innerHTML = html
+    floatElement.classList.add('float-element')
 
     let mapRelativePositionToStyle = {
         'middle-top': {
@@ -29,6 +30,11 @@ function addFloatElement(e, html, option = null) {
             bottom: '50%',
             right: '100%',
             transform: 'translateY(50%)'
+        },
+        'middle-bottom': {
+            top: '100%',
+            left: '50%',
+            transform: 'translateX(-50%)'
         }
     }
 
@@ -132,6 +138,22 @@ function popUp(html, option) {
 
 function popUpMessage(mes) {
     popUp(mes, {
+        style: {
+            width: '400px',
+            height: '300px',
+            'font-size': '20px'
+        }
+    })
+}
+
+function popUpConfirm(html, f) {
+    popUp(html, {
+        hideCloseButton: true,
+        buttonHtmls: ['Thoát', 'Xác nhận'],
+        buttonClickHandlers: [$pu => $pu.remove(), ($pu) => {
+            $pu.remove()
+            f()
+        }],
         style: {
             width: '400px',
             height: '300px',
@@ -334,5 +356,13 @@ function ACPHS(s, f, hasCondition = false) {
         let [v, c] = f(i)
         if (!hasCondition || c) r.push(v)
     }
+    return r
+}
+
+function range(a, b = null) {
+    let s = b ? a : 0
+    let e = b ? b : a
+    let r = []
+    for (let i = s; i < e; i++) r.push(i)
     return r
 }

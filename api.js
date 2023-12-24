@@ -4,7 +4,8 @@ const ERROR = {
     WRONG_PASSWORD: 'WRONG_PASSWORD',
     EXISTED_USERNAME: 'EXISTED_USERNAME',
     ROOM_ID_DOESNOT_EXIST: 'ROOM_ID_DOESNOT_EXIST',
-    USER_HAS_BEEN_IN_ROOM: 'USER_HAS_BEEN_IN_ROOM'
+    USER_HAS_BEEN_IN_ROOM: 'USER_HAS_BEEN_IN_ROOM',
+    ROOM_ADMIN_CAN_NOT_LEAVE_ROOM: 'ROOM_ADMIN_CAN_NOT_LEAVE_ROOM'
 }
 
 const DEV_MODE = true
@@ -18,12 +19,12 @@ function RandomFunction(seed = 1) {
 }
 
 function FakeAPI() {
-    let NUM_USERS = 100
+    let NUM_USERS = 50
     let MAX_NUM_SECURITY_QUESTIONS_PER_USER = 4
-    let MAX_NUM_MEMBERS_PER_ROOM = 32
+    let MAX_NUM_MEMBERS_PER_ROOM = 20
     let NUM_ROOMS = 80
     let MAX_NUM_JOIN_ROOM_REQUESTS_PER_USER = 2
-    let MAX_NUM_SMALL_TRANSCATION_PER_USER_PER_ROOM = 200
+    let MAX_NUM_SMALL_TRANSCATION_PER_USER_PER_ROOM = 50
     let MAX_NUM_FEE_WITH_DEADLINE = 100
 
     let random = RandomFunction()
@@ -303,6 +304,13 @@ function FakeAPI() {
                     && (status == 1 || !CustomDateManager.d1SmallerThanD2(leaveDate, earlyThisMonth))
                 }).length
             },
+            getNumUsersEarlyOfMonthAndYear: (rid, month, year) => {
+                let earlyThatMonth = `${1}/${month}/${year}`
+                return room_user.filter(({userId, roomId, status, leaveDate}) => {
+                    return roomId == rid
+                    && (status == 1 || !CustomDateManager.d1SmallerThanD2(leaveDate, earlyThatMonth))
+                }).length
+            },
             getRoomById: (rid) => rooms.find(({id}) => rid == id)
         }
     })()
@@ -407,7 +415,10 @@ function FakeAPI() {
         },
         getRoomsOfUser: ({onDone, onFailed}) => {
             let userId = localStorage.getItem('userId')
-            onDone(roomDAO.getRoomsOfUserId(userId))
+            onDone(roomDAO.getRoomsOfUserId(userId).map(room => {
+                room.isAdmin = room.adminUserId == userId
+                return room
+            }))
         },
         getSmallTransaction: (rid, month, year, specificUserId, {onDone, onFailed}) => {
             onDone(smallTransactionsDAO.getSmallTransaction(rid, month, year, specificUserId))
@@ -558,28 +569,33 @@ function FakeAPI() {
             })
             onDone(joinReqs)
         },
-        rejectJoinRoomRequest: (roomId, userId, {onDone}) => {
-            let isSenderProactive = !userId
-            let uid = isSenderProactive ? localStorage.getItem('userId') : userId
+        cancelJoinRoomRequest: (roomId, {onDone}) => {
+            let uid = localStorage.getItem('userId')
             let joinReq = joinRoomReqDAO.get(roomId, uid)
-            joinReq.status = isSenderProactive ? 3 : 0
+            joinReq.status = 3
             onDone()
         },
-        acceptJoinRoomRequest: (rid, uid, {onDone}) => {
-            let joinReq = joinRoomReqDAO.get(rid, uid)
-            joinReq.status = 2
-            let pair = room_user.find(({userId, roomId}) => userId == uid && roomId == rid)
-            if (!pair) {
-                pair = {
-                    userId: uid,
-                    roomId: rid
+        acceptJoinRoomRequest: (rid, uid, accept, {onDone}) => {
+            if (accept) {
+                let joinReq = joinRoomReqDAO.get(rid, uid)
+                joinReq.status = 2
+                let pair = room_user.find(({userId, roomId}) => userId == uid && roomId == rid)
+                if (!pair) {
+                    pair = {
+                        userId: uid,
+                        roomId: rid
+                    }
+                    room_user.push(pair)
                 }
-                room_user.push(pair)
+                Object.assign(pair, {
+                    status: 1,
+                    joinDate: CustomDateManager.now()
+                })
             }
-            Object.assign(pair, {
-                status: 1,
-                joinDate: CustomDateManager.now()
-            })
+            else {
+                let joinReq = joinRoomReqDAO.get(rid, uid)
+                joinReq.status = 0
+            }
             onDone()
         },
         allRoomsStatistic: (month, year, {onDone}) => {
@@ -600,38 +616,104 @@ function FakeAPI() {
             })
             onDone(result)
         },
-        totalSpendingRecent12Months: ({onDone}) => {
-            let currMonth = new Date().getMonth() + 1
-            let currYear = new Date().getFullYear()
-            let result = []
-            for (let i = 0; i < 12; i++) {
-                // - 1 month
-                if (currMonth == 1) {
-                    currMonth = 12
-                    currYear --
-                } else {
-                    currMonth--
-                }
-                a.allRoomsStatistic(currMonth, currYear, {
-                    onDone: (rooms) => {
-                        result.push(rooms.reduce((p, {totalSpending}) => p + totalSpending, 0))
-                    }
+        totalSpendingEachMonthOfYear: (year, {onDone}) => {
+            let uid = localStorage.getItem('userId')
+            let resultTemp = {}
+            let roomIds = new Set(userDAO.getRoomIdsOfUserId(uid))
+            smallTransactions.forEach(({roomId, price, transactionDate}) => {
+                if (!roomIds.has(roomId)) return
+
+                let [d, m, y] = transactionDate.split('/').map(x => Number(x))
+                if (y != year) return
+
+                price = Number(price)
+
+                let key = roomId + '--' + m
+                if (resultTemp[key]) resultTemp[key] += price
+                else resultTemp[key] = price
+            })
+            feesWithDealine.forEach(({deadline, roomId, price}) => {
+                if (!roomIds.has(roomId)) return
+
+                let [d, m, y] = deadline.split('/').map(x => Number(x))
+                if (y != year) return
+
+                price = Number(price)
+                let key = roomId + '--' + m
+                if (resultTemp[key]) resultTemp[key] += price
+                else resultTemp[key] = price
+            })
+            let numMembers = {}
+            roomIds.forEach(rid => {
+                range(1, 13).forEach(m => {
+                    numMembers[rid + '--' + m] = roomDAO.getNumUsersEarlyOfMonthAndYear(rid, m, year)
                 })
-            }
-            result.reverse()
+            })
+            let result = []
+            range(1, 13).forEach(month => {
+                let t = 0
+                for (let rid of roomIds) {
+                    t += (resultTemp[rid + '--' + month] || 0)/numMembers[rid + '--' + month]
+                }
+                result.push(Math.ceil(t))
+            })
             onDone(result)
+        },
+        changeAdmin: (data, onDone, onFailed) => {
+            let {roomId, newAdminId} = data
+            roomDAO.getRoomById(roomId).adminUserId = newAdminId
+            onDone()
+        },
+        leaveRoom: (data, onDone, onFailed) => {
+            let {roomId} = data
+            let rid = roomId
+            let uid = localStorage.getItem('userId')
+            let room = roomDAO.getRoomById(roomId)
+            if (uid == room.adminUserId) {
+                if (userDAO.getUsersOfRoomId(roomId).length != 1) {
+                    onFailed(ERROR.ROOM_ADMIN_CAN_NOT_LEAVE_ROOM)
+                    return
+                }
+            }
+            let pair = room_user.find(({userId, roomId}) => userId == uid && roomId == rid)
+            pair.status = 0
+            pair.leaveDate = CustomDateManager.now()
+            onDone()
         }
     }
     return a
 }
 
 function TrueAPI() {
-    let base = ''
+    let base = 'http://localhost:8080'
+    function $get(url, data, onDone, onFailed) {
+        $.ajax({ 
+            type: "GET",
+            url: base + url,
+            contentType: "application/json",
+            dataType: 'json',
+            data: JSON.stringify(data),
+            success: (result, status, xhr) => console.log(result, status, xhr),
+            error: (xhr, status, error) => onFailed(xhr.responseText)
+        })
+    }
+    function $post(url, data, onDone, onFailed) {
+        $.ajax({
+            type: "POST",
+            url: base + url,
+            contentType: "application/json",
+            dataType: 'text',
+            data: JSON.stringify(data),
+            success: (result, status, xhr) => console.log(result, status, xhr),
+            error: (xhr, status, error) => onFailed(xhr.responseText)
+        })
+    }
     return {
         login: function (username, password, {onDone, onFailed}) {
-            $.post(base + '/api/login', {username, password}, onDone)
+            $post('/login', {username, password}, onDone, onFailed)
         }
     }
 }
 
 api = FakeAPI()
+

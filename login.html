@@ -86,7 +86,9 @@
                     api.login(un, pw, {
                         onDone: () => window.location.href = './index.html',
                         onFailed: (error) => {
-
+                            if (error == ERROR.USERNAME_DOESNOT_EXIST) {
+                                
+                            }
                         }
                     })
                 })
