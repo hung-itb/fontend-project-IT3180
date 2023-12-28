@@ -336,7 +336,7 @@ function loadListRoomMembersView() {
     let jCont = $('#room-members')
     jCont.find('.list-members > .item').remove()
 
-    function createMemberAsLine({ fullname, avatarUrl, phoneNumber, bankNumber, bankName }) {
+    function createMemberAsLine({ id, fullname, avatarUrl, phoneNumber, bankNumber, bankName }) {
         let html = `
             <div class="item">
                 <img src="${avatarUrl}" alt="">
@@ -349,28 +349,20 @@ function loadListRoomMembersView() {
         `
 
         let jItem = $(html)
-        if (currentRoom.isAdmin) {
-            let fEHtml = '<button class="del-member">Xóa thành viên</button>'
+        if (currentRoom.isAdmin && id != user.id) {
+            let fEHtml = '<button class="del-member primary">Xóa thành viên</button>'
             addFloatElement(jItem[0], fEHtml, {
                 displayCondition: 'hover',
                 script: (fE) => {
-                    let style =  {
-                        padding: '12px',
-                        width: '260px',
-                        display: 'flex',
-                        justifyContent: 'space-around'
-                    }
-                    Object.assign(fE.querySelector('.fee-with-deadline-ops').style, style)
-                
-                    // Adjust float element position when item is first or last item
+                    // Adjust float element position when item is first item
                     jItem
                     .on('mouseenter', () => {
-                        let isFirst = (jItem.prev().length == 0)
+                        let isFirst = (jItem.prev('.item').length == 0)
                         if (isFirst) {
                             $(fE).css({
                                 top: '100%',
                                 bottom: 'unset',
-                                'z-index': 10
+                                'z-index': 100
                             })
                         }
                     })
@@ -382,14 +374,11 @@ function loadListRoomMembersView() {
                         })
                     })
     
-                    $(fE).find('button.delete').click(() => {
-                        api.deleteFeeWithDeadline(id, {
-                            onDone: () => loadRequestPaymentsView()
-                        })
-                    })
-    
-                    $(fE).find('button.edit').click(() => {
-                        
+                    $(fE).find('button.del-member').click(() => {
+                        $(fE).hide()
+                        setTimeout(() => $(fE).show(), 100)
+                        let f = () => api.removeMember({roomId: currentRoom.id, userId: id}, () => jItem.remove())
+                        popUpConfirm('Bạn có chắc chắn muốn xóa thành viên này không?', f)
                     })
                 }
             })

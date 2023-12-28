@@ -571,7 +571,6 @@ body {
   border-radius: 36px;
   align-items: center;
   justify-content: space-between;
-  overflow: hidden;
   margin-top: 24px;
   text-align: center;
 }
@@ -605,6 +604,9 @@ body {
 }
 #main-container #room-members .list-members .item > *:nth-child(2), #main-container #room-members .list-members .item > *:nth-child(3) {
   border-right: 3px solid black;
+}
+#main-container #room-members .list-members .item .float-element {
+  padding: 0 16px;
 }
 #main-container #room-members .list-members #view-join-room-req-of-room {
   position: absolute;

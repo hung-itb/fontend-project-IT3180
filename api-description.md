@@ -120,32 +120,25 @@
 }
 - Trả về: Thành công
 
-16) Lấy tình hình đóng phí có thời hạn
-- Truyền vào: {
-    roomId: Mã phòng,
-    allUser // True hoặc False chỉ ra rằng lấy của cả phòng hay không
-}
-allUser == false: Lấy của mình user đã đăng nhập
+16) Lấy tình hình đóng phí có thời hạn 
+- Truyền vào: { 
+    roomId: Mã phòng, 
+    allUser // True hoặc False chỉ ra rằng lấy của cả phòng hay không 
+} 
+allUser == false: Lấy của mình user đã đăng nhập 
 allUser == true: Lấy của tất cả thành viên trong phòng
+
 - Trả về:
-+ TH1: allUser == true
-Object như sau, gồm 3 key {
-    key1 là feesWithDealine: Là mảng các chi phí có thời hạn, mỗi chi phí có thời hạn là 1 object có dạng {
-        id, name, pricePerUser, deadline
-    }
++ TH1: allUser == true 
+Trả về mảng, mỗi phần tử gồm các trường thông tin { 
+    feeId, feeName, deadline, pricePerUser, userId, payStatus, 
+    inRoomStatus	// user còn trong phòng không 
+} 
 
-    key2 là payStatus: Là mảng cácobject, mỗi object có dạng {
-        feeId, userId, status
-    }
-
-    key3 là users: Mảng các user, mỗi user gồm các trường thông tin {
-        userId, username
-    }
-}
-+ TH2: allUser == false
-Trả về một mảng, mỗi phần tử có dạng như sau: {
-    feeName, pricePerUser, status, deadline
-}
++ TH2: allUser == false 
+Trả về một mảng, mỗi phần tử có dạng như sau: { 
+    feeName, pricePerUser, status, deadline 
+} 
 
 17) Đảo ngược trạng thái đóng chi phí có thời hạn
 - Truyền vào: {
@@ -191,21 +184,20 @@ Trả về một mảng, mỗi phần tử có dạng như sau: {
     avatarUrl
 }
 
-22) Hủy yêu cầu tham gia phòng
-- Truyền vào {
-    roomId,
-    userId
-}
-Nếu userId là null có nghĩa là user đã đăng nhập tự hủy yêu cầu vào phòng
-Nếu userId khác null thì có nghĩa là admin của phòng roomId từ chối yêu cầu vào phòng của thằng userId
-- Trả về: Thành công
+22) Hủy yêu cầu tham gia phòng 
+- Truyền vào { 
+    roomId 
+} 
+User hủy tham gia phòng 
+- Trả về: Thành công 
 
-23) Chấp nhận yêu cầu vào phòng
-- Truyền vào {
-    roomId,
-    userId
-}
-- Trả về: Thành công
+23) Xét duyệt yêu cầu vào phòng 
+- Truyền vào { 
+    roomId, 
+    UserId, 
+    Accept // True hoặc false, True có nghĩa là đồng ý, false là từ chối 
+} 
+- Trả về: Thành công 
 
 24) Thống kê tổng số tiền mà người dùng phải chi cho mỗi phòng mà họ tham gia trong tháng và năm chỉ định
 - Đấu vào {
@@ -275,3 +267,11 @@ Sẽ thất bại nếu user là trưởng phòng và số thành viên lớn h�
     password // Mật khẩu hiện tại của người dùng
 }
 - Trả về: Thành công hoặc thất bại nếu password != Mật khẩu hiện tại của người dùng, khi đó trả về tin nhắn lỗi là "WRONG_PASSWORD"
+
+33) Xóa thành viên ra khỏi phòng
+- Đầu vào: {
+    roomId,
+    userId
+}
+
+- Trả về: Thành công

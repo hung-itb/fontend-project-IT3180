@@ -682,7 +682,6 @@ body {
                 border-radius: 36px;
                 align-items: center;
                 justify-content: space-between;
-                overflow: hidden;
                 margin-top: 24px;
                 text-align: center;
 
@@ -719,6 +718,10 @@ body {
 
                 >*:nth-child(2), >*:nth-child(3) {
                     border-right: 3px solid black;
+                }
+
+                .float-element {
+                    padding: 0 16px;
                 }
             }
 

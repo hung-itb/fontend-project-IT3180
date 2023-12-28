@@ -725,6 +725,16 @@ function FakeAPI() {
                 question, answer
             })
             onDone()
+        },
+        removeMember: (data, onDone, onFailed) => {
+            let {roomId, userId} = data
+            let rid = roomId, uid = userId
+            let pair = room_user.find(({roomId, userId}) => roomId == rid && userId == uid)
+            Object.assign(pair, {
+                status: 0,
+                leaveDate: CustomDateManager.now()
+            })
+            onDone()
         }
     }
     return a
