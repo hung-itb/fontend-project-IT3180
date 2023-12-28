@@ -95,8 +95,15 @@ body {
      object-fit: cover;
   border-radius: 50%;
 }
-#navbar #nav-right-side .user-icon-wrapper .float-element:hover {
-  background-color: #ccc !important;
+#navbar #nav-right-side .user-icon-wrapper .float-element {
+  padding: 0 !important;
+}
+#navbar #nav-right-side .user-icon-wrapper .float-element .ops-wrapper > * {
+  width: 180px;
+  padding: 12px;
+}
+#navbar #nav-right-side .user-icon-wrapper .float-element .ops-wrapper > *:hover {
+  background-color: #ccc;
 }
 #navbar #nav-right-side .log-out {
   margin-left: 30px;
@@ -890,4 +897,22 @@ body {
 }
 .pop-up .user-profile input[name=fullname] {
   margin-top: 24px;
+}
+.pop-up .list-security-questions .item {
+  display: flex;
+  padding: 16px 60px;
+  align-items: center;
+  margin-bottom: 18px;
+  background-color: #98EECC;
+  border-radius: 16px;
+}
+.pop-up .list-security-questions .item .q {
+  flex: 1;
+  font-size: 20px;
+}
+.pop-up .list-security-questions .item .del {
+  color: #D80032;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
 }/*# sourceMappingURL=style.css.map */

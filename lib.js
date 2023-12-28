@@ -232,7 +232,9 @@ function FormManager(jForm, option) {
     let defaultOption = {
         fieldNamesAndRequires: [], // {name: 'field name', requires: 'not empty' || ['not empty', ..., (val, errors) => {}]}
         onSubmit: () => {},
-        ipPlaceHolderSameVnName: true
+        ipPlaceHolderSameVnName: true,
+        removeInputValueIfFormValid: true,
+        initInputValue: null
     }
     if (option) {
         for (let key in option) {
@@ -247,6 +249,12 @@ function FormManager(jForm, option) {
         })
     }
 
+    if (option.initInputValue) {
+        for (let name in option.initInputValue) {
+            jForm.find(`input[name="${name}"]`).val(option.initInputValue[name])
+        }
+    }
+
     jForm.find('button.submit').click((e) => {
         e.preventDefault()
         jForm.find('.errors').html('')
@@ -254,6 +262,7 @@ function FormManager(jForm, option) {
         let errors = []
         jForm.find('input').each((_, ip) => formData[$(ip).attr('name')] = $(ip).val())
         for (let { name, requires, vnName } of option.fieldNamesAndRequires) {
+            if (!requires) requires = ''
             if (typeof requires == 'string') requires = requires == '' ? [] : [requires]
             let val = formData[name]
             let valValid = true
@@ -288,7 +297,7 @@ function FormManager(jForm, option) {
         }
 
         if (errors.length == 0) {
-            jForm.find('input').val('')
+            if (option.removeInputValueIfFormValid) jForm.find('input').val('')
             jForm.find('.errors').html('')
             option.onSubmit(formData)
         }

@@ -239,3 +239,39 @@ Nếu userId khác null thì có nghĩa là admin của phòng roomId từ chố
 
 - Trả về: Thành công
 Sẽ thất bại nếu user là trưởng phòng và số thành viên lớn hơn 1, khi đó trả về tin nhắn lỗi là "ROOM_ADMIN_CAN_NOT_LEAVE_ROOM"
+
+28) Thay đổi mật khẩu
+- Đầu vào: {
+    newPassword,
+    oldPassword
+}
+
+- Trả về: Thành công hoặc thất bại nếu oldPassword != Mật khẩu hiện tại của người dùng, khi đó trả về tin nhắn lỗi là "WRONG_PASSWORD"
+
+29) Cập nhật thông tin cá nhân (không bao gồm thay đổi ảnh đại diện)
+- Đầu vào: {
+    fullname,
+    phoneNumber,
+    bankName,
+    bankNumber
+}
+
+- Trả về thành công
+
+30) Lấy danh sách câu hỏi bảo mật
+- Đầu vào: Không có
+- Trả về danh sách câu hỏi bảo mật, mỗi câu hỏi bao gồm {id, question}
+
+31) Xóa câu hỏi bảo mật
+- Đầu vào: {
+    id // id câu hỏi bảo mật
+}
+- Trả về thành công
+
+32) Thêm câu hỏi bảo mật
+- Đầu vào: {
+    question,
+    answer,
+    password // Mật khẩu hiện tại của người dùng
+}
+- Trả về: Thành công hoặc thất bại nếu password != Mật khẩu hiện tại của người dùng, khi đó trả về tin nhắn lỗi là "WRONG_PASSWORD"

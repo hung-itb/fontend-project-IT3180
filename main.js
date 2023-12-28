@@ -349,10 +349,51 @@ function loadListRoomMembersView() {
         `
 
         let jItem = $(html)
-        jItem.find('.bank .more-info').click(function () {
-
-        })
-
+        if (currentRoom.isAdmin) {
+            let fEHtml = '<button class="del-member">Xóa thành viên</button>'
+            addFloatElement(jItem[0], fEHtml, {
+                displayCondition: 'hover',
+                script: (fE) => {
+                    let style =  {
+                        padding: '12px',
+                        width: '260px',
+                        display: 'flex',
+                        justifyContent: 'space-around'
+                    }
+                    Object.assign(fE.querySelector('.fee-with-deadline-ops').style, style)
+                
+                    // Adjust float element position when item is first or last item
+                    jItem
+                    .on('mouseenter', () => {
+                        let isFirst = (jItem.prev().length == 0)
+                        if (isFirst) {
+                            $(fE).css({
+                                top: '100%',
+                                bottom: 'unset',
+                                'z-index': 10
+                            })
+                        }
+                    })
+                    .on('onmouseleave', function () {
+                        $(fE).css({
+                            top: 'unset',
+                            bottom: '100%',
+                            'z-index': null
+                        })
+                    })
+    
+                    $(fE).find('button.delete').click(() => {
+                        api.deleteFeeWithDeadline(id, {
+                            onDone: () => loadRequestPaymentsView()
+                        })
+                    })
+    
+                    $(fE).find('button.edit').click(() => {
+                        
+                    })
+                }
+            })
+        }
         return jItem
     }
 
@@ -684,7 +725,14 @@ $('#left-side-bar .item[tab-id="room-members"]').click(loadListRoomMembersView)
 $('#left-side-bar .item[tab-id="fixed-costs"]').click(loadFixedCostsView)
 $('#left-side-bar .item[tab-id="request-payments"]').click(loadRequestPaymentsView)
 
-addFloatElement($('.user-icon-wrapper')[0], 'Thông tin cá nhân', {
+let user_ops_html = `<div class="ops-wrapper">
+    <div>Đổi ảnh đại diện</div>
+    <div class="update-profile">Cập nhật thông tin</div>
+    <div class="security-questions">Câu hỏi bảo mật</div>
+    <div class="change-password">Đổi mật khẩu</div>
+</div>`
+
+addFloatElement($('.user-icon-wrapper')[0], user_ops_html, {
     relativePosition: 'middle-bottom',
     style: {
         padding: '8px',
@@ -693,15 +741,181 @@ addFloatElement($('.user-icon-wrapper')[0], 'Thông tin cá nhân', {
     displayCondition: 'hover',
     script: (fE) => {
         $fE = $(fE)
-        $fE.click(() => {
+        $fE.find('.change-password').click(() => {
             $fE.hide()
             setTimeout(() => $fE.show(), 100)
-            popUp(`
-                <input type="text" class="primary" name="fullname">
-                <input type="text" class="primary" name="phoneNumber">
-                <input type="text" class="primary" name="bankName">
-                <input type="text" class="primary" name="bankNumber">
-            `)
+            let html = `
+                <div class="header">Đổi mật khẩu</div>
+                <form>
+                    <input type="text" class="primary" name="newPassword">
+                    <input type="text" class="primary" name="newPasswordConfirm">
+                    <input type="text" class="primary" name="oldPassword">
+                    <span class="errors"></span>
+                    <button class="submit" style="display: none;"></button>
+                </form>
+            `
+
+            popUp(html, {
+                hideCloseButton: true,
+                script: (jPopUp) => {
+                    FormManager(jPopUp.find('form'), {
+                        removeInputValueIfFormValid: false,
+                        fieldNamesAndRequires: [
+                            { name: 'newPassword', requires: 'notEmpty', vnName: 'Mật khẩu mới' },
+                            { name: 'newPasswordConfirm', requires: 'notEmpty', vnName: 'Nhập lại mật khẩu mới' },
+                            { name: 'oldPassword', requires: 'notEmpty', vnName: 'Mật khẩu hiện tại' }
+                        ],
+                        onSubmit: (formData) => {
+                            let {newPassword, newPasswordConfirm, oldPassword} = formData
+                            if (newPassword != newPasswordConfirm) {
+                                popUpMessage('Mật khẩu mới và nội dung nhập lại không trùng khớp!')
+                                return
+                            }
+                            api.changePassword(formData, () => {
+                                popUpMessage('Đổi mật khẩu thành công!')
+                                jPopUp.remove()
+                            }, (mes) => {
+                                if (mes == ERROR.WRONG_PASSWORD) {
+                                    popUpMessage('Sai mật khẩu cũ!')
+                                }
+                            })
+                        }
+                    })
+                },
+                buttonHtmls: ['Thoát', 'Đổi mật khẩu'],
+                buttonClickHandlers: [
+                    (jPopUp) => jPopUp.remove(),
+                    (jPopUp) => jPopUp.find('form button.submit').click()
+                ]
+            })
+        })
+        $fE.find('.update-profile').click(() => {
+            $fE.hide()
+            setTimeout(() => $fE.show(), 100)
+            let html = `
+                <div class="header">Cập nhật thông tin cá nhân</div>
+                <form>
+                    <input type="text" class="primary" name="fullname">
+                    <input type="text" class="primary" name="phoneNumber">
+                    <input type="text" class="primary" name="bankName">
+                    <input type="text" class="primary" name="bankNumber">
+                    <span class="errors"></span>
+                    <button class="submit" style="display: none;"></button>
+                </form>
+            `
+
+            popUp(html, {
+                hideCloseButton: true,
+                script: (jPopUp) => {
+                    FormManager(jPopUp.find('form'), {
+                        removeInputValueIfFormValid: false,
+                        fieldNamesAndRequires: [
+                            { name: 'fullname', requires: 'notEmpty', vnName: 'Tên đầy đủ' },
+                            { name: 'phoneNumber', vnName: 'Số điện thoại' },
+                            { name: 'bankName', vnName: 'Tên ngân hàng' },
+                            { name: 'bankNumber', vnName: 'Số ngân hàng' }
+                        ],
+                        initInputValue: user,
+                        onSubmit: (formData) => {
+                            api.updateProfile(formData, () => {
+                                popUpMessage('Cập nhật thông tin thành công!')
+                                jPopUp.remove()
+                            })
+                        }
+                    })
+                },
+                buttonHtmls: ['Thoát', 'Cập nhật thông tin'],
+                buttonClickHandlers: [
+                    (jPopUp) => jPopUp.remove(),
+                    (jPopUp) => jPopUp.find('form button.submit').click()
+                ]
+            })
+        })
+        $fE.find('.security-questions').click(() => {
+            $fE.hide()
+            setTimeout(() => $fE.show(), 100)
+            let html = `
+                <div class="header">Câu hỏi bảo mật của tôi</div>
+                <div class="list-security-questions"></div>
+            `
+
+            let refreshPopUp = null
+
+            popUp(html, {
+                hideCloseButton: true,
+                style: {
+                    width: '1000px',
+                    height: '640px'
+                },
+                script: (jPopUp) => {
+                    refreshPopUp = function refresh() {
+                        jPopUp.find('.list-security-questions').html('')
+                        api.getSecurityQuestions((qs) => {
+                            qs.forEach(({question, id}) => {
+                                let html = `<div class="item">
+                                    <div class="q">${question}</div>
+                                    <div class="del">Xóa</div>
+                                </div>`
+
+                                let jItem = $(html)
+                                jPopUp.find('.list-security-questions').append(jItem)
+                                jItem.find('.del').click(() => {
+                                    popUpConfirm('Bạn có chắc chắn muốn xóa không?', () => {
+                                        api.deleteSecurityQuestion({id}, () => jItem.remove())
+                                    })
+                                })
+                            })
+                        })
+                    }
+                    refreshPopUp()
+                },
+                buttonHtmls: ['Thoát', 'Thêm câu hỏi bảo mật'],
+                buttonClickHandlers: [
+                    (jPopUp) => jPopUp.remove(),
+                    (jPopUp) => {
+                        let html = `
+                            <div class="header">Thêm câu hỏi bảo mật</div>
+                            <form>
+                                <input type="text" class="primary" name="question">
+                                <input type="text" class="primary" name="answer">
+                                <input type="text" class="primary" name="password">
+                                <span class="errors"></span>
+                                <button class="submit" style="display: none;"></button>
+                            </form>
+                        `
+
+                        popUp(html, {
+                            hideCloseButton: true,
+                            script: (jPopUp) => {
+                                FormManager(jPopUp.find('form'), {
+                                    removeInputValueIfFormValid: false,
+                                    fieldNamesAndRequires: [
+                                        { name: 'question', requires: 'notEmpty', vnName: 'Nội dung câu hỏi' },
+                                        { name: 'answer', requires: 'notEmpty', vnName: 'Câu trả lời' },
+                                        { name: 'password', requires: 'notEmpty', vnName: 'Mật khẩu hiện tại' }
+                                    ],
+                                    onSubmit: (formData) => {
+                                        api.addSecurityQuestion(formData, () => {
+                                            popUpMessage('Thêm thành công!')
+                                            refreshPopUp()
+                                            jPopUp.remove()
+                                        }, (mes) => {
+                                            if (mes == ERROR.WRONG_PASSWORD) {
+                                                popUpMessage('Sai mật khẩu cũ!')
+                                            }
+                                        })
+                                    }
+                                })
+                            },
+                            buttonHtmls: ['Thoát', 'Thêm'],
+                            buttonClickHandlers: [
+                                (jPopUp) => jPopUp.remove(),
+                                (jPopUp) => jPopUp.find('form button.submit').click()
+                            ]
+                        })
+                    }
+                ]
+            })
         })
     }
 })

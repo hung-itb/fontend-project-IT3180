@@ -679,6 +679,52 @@ function FakeAPI() {
             pair.status = 0
             pair.leaveDate = CustomDateManager.now()
             onDone()
+        },
+        changePassword: (data, onDone, onFailed) => {
+            let {newPassword, oldPassword} = data
+            let uid = localStorage.getItem('userId')
+            let user = userDAO.findUserById(uid)
+            if (user.password != oldPassword) {
+                onFailed(ERROR.WRONG_PASSWORD)
+                return
+            }
+            user.password = newPassword
+            onDone()
+        },
+        updateProfile: (data, onDone, onFailed) => {
+            let uid = localStorage.getItem('userId')
+            let user = userDAO.findUserById(uid)
+            Object.assign(user, data)
+            onDone()
+        },
+        getSecurityQuestions: (onDone, onFailed) => {
+            let uid = localStorage.getItem('userId')
+            onDone(securityQuestions.filter(({userId}) => userId == uid).map(q => {
+                delete q.answer
+                return q
+            }))
+        },
+        deleteSecurityQuestion: (data, onDone, onFailed) => {
+            let uid = localStorage.getItem('userId')
+            let {id} = data
+            let qid = id
+            securityQuestions = securityQuestions.filter(({id}) => qid != id)
+            onDone()
+        },
+        addSecurityQuestion: (data, onDone, onFailed) => {
+            let uid = localStorage.getItem('userId')
+            let {question, answer, password} = data
+            let user = userDAO.findUserById(uid)
+            if (user.password != password) {
+                onFailed(ERROR.WRONG_PASSWORD)
+                return
+            }
+            securityQuestions.push({
+                id: randomId(),
+                userId: uid,
+                question, answer
+            })
+            onDone()
         }
     }
     return a
