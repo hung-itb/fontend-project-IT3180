@@ -16,10 +16,12 @@
 </head>
 <body>
     <script>
-        let userId = localStorage.getItem('userId')
-        if (userId) {
-            window.location.href = './index.html'
-        }
+        api.getUserInfo({
+            onDone: (resultUser) => {
+                window.location.href = './index.html'
+            },
+            onFailed: () => 1
+        })
     </script>
     <div id="top">
         <div class="left">
@@ -40,6 +42,8 @@
                 <input type="text" placeholder="@username = 'hung' to login" class="primary username">
                 <input type="text" placeholder="Password = '123' to login" class="primary password">
 
+                <div class="errors"></div>
+
                 <div class="button-group">
                     <button class="login primary">Login</button>
                     <button class="sign-up primary">Sign up</button>
@@ -54,6 +58,8 @@
                 <input type="text" placeholder="@username" class="primary username">
                 <input type="text" placeholder="Password" class="primary password">
                 <input type="text" placeholder="Confirm password" class="primary cf-password">
+
+                <div class="errors"></div>
 
                 <div class="button-group">
                     <button class="back-to-login primary">Back to login</button>
@@ -82,12 +88,19 @@
                     e.preventDefault()
                     let un = $('form.login input.username').val()
                     let pw = $('form.login input.password').val()
+                    let $formError = $('form.login .errors').html('')
 
                     api.login(un, pw, {
-                        onDone: () => window.location.href = './index.html',
+                        onDone: () => {
+                            window.location.href = './index.html'
+                        },
                         onFailed: (error) => {
                             if (error == ERROR.USERNAME_DOESNOT_EXIST) {
-                                
+                                $formError.html('<span>*username không tồn tại!</span>')
+                            } else if (error == ERROR.WRONG_PASSWORD) {
+                                $formError.html('<span>*Sai mật khẩu!</span>')
+                            } else {
+                                $formError.html('<span>*Có lỗi xảy ra!</span>')
                             }
                         }
                     })
@@ -100,10 +113,20 @@
                     let pw = $('form.sign-up input.password').val()
                     let cfpw = $('form.sign-up input.cf-password').val()
 
+                    let $formError = $('form.sign .errors').html('')
+                    if (pw != cfpw) {
+                        $formError.html('<span>*Mật khẩu và mật khẩu xác nhận khác nhau!</span>')
+                        return
+                    }
+
                     api.signUp(fullname, un, pw, {
                         onDone: () => window.location.href = './index.html',
                         onFailed: (error) => {
-
+                            if (error == ERROR.EXISTED_USERNAME) {
+                                $formError.html('<span>*usernam đã tồn tại!</span>')
+                            } else {
+                                $formError.html('<span>*Có lỗi xảy ra!</span>')
+                            }
                         }
                     })
                 })

@@ -5,7 +5,8 @@ const ERROR = {
     EXISTED_USERNAME: 'EXISTED_USERNAME',
     ROOM_ID_DOESNOT_EXIST: 'ROOM_ID_DOESNOT_EXIST',
     USER_HAS_BEEN_IN_ROOM: 'USER_HAS_BEEN_IN_ROOM',
-    ROOM_ADMIN_CAN_NOT_LEAVE_ROOM: 'ROOM_ADMIN_CAN_NOT_LEAVE_ROOM'
+    ROOM_ADMIN_CAN_NOT_LEAVE_ROOM: 'ROOM_ADMIN_CAN_NOT_LEAVE_ROOM',
+    NO_USER_LOGINED: 'No user is logged in'
 }
 
 const DEV_MODE = true
@@ -400,17 +401,9 @@ function FakeAPI() {
             localStorage.setItem('userId', user.id)
             onDone()
         },
-        getUserInfo: (userId, {onDone, onFailed}) => {
+        getUserInfo: ({onDone, onFailed}) => {
             let userIdStorage = localStorage.getItem('userId')
-            if (userIdStorage != userId) {
-                let roomIdsOfU1 = userDAO.getRoomIdsOfUserId(userId)
-                let roomIdsOfU2 = new Set(userDAO.getRoomIdsOfUserId(userIdStorage))
-                let twoUserInSameRoom = roomIdsOfU1.some(roomId => roomIdsOfU2.has(roomId))
-                if (!twoUserInSameRoom) {
-                    onFailed()
-                }
-            }
-            let user = userDAO.findUserById(userId)
+            let user = userDAO.findUserById(userIdStorage)
             onDone(user)
         },
         getRoomsOfUser: ({onDone, onFailed}) => {
@@ -742,34 +735,78 @@ function FakeAPI() {
 
 function TrueAPI() {
     let base = 'http://localhost:8080'
-    function $get(url, data, onDone, onFailed) {
-        $.ajax({ 
-            type: "GET",
-            url: base + url,
-            contentType: "application/json",
-            dataType: 'json',
-            data: JSON.stringify(data),
-            success: (result, status, xhr) => console.log(result, status, xhr),
-            error: (xhr, status, error) => onFailed(xhr.responseText)
-        })
-    }
-    function $post(url, data, onDone, onFailed) {
+    let DEV = true
+    function $ajax({url, data, onDone, onFailed, type, json}) {
         $.ajax({
-            type: "POST",
+            type: (type || 'get').toUpperCase(),
             url: base + url,
             contentType: "application/json",
-            dataType: 'text',
-            data: JSON.stringify(data),
-            success: (result, status, xhr) => console.log(result, status, xhr),
-            error: (xhr, status, error) => onFailed(xhr.responseText)
+            dataType: json ? 'json' : 'text',
+            data: data ? JSON.stringify(data) : {},
+            success: (result, status, xhr) => {
+                if (DEV) l(`"${url}"`, result)
+                if (onDone) onDone(result)
+            },
+            error: (xhr, status, error) => {
+                if (DEV) l(`"${url}"`, xhr.responseText)
+                if (onFailed) onFailed(xhr.responseText)
+                else {
+                    popUpMessage('Có lỗi xảy ra')
+                }
+            }
         })
     }
-    return {
+    let a = {
+        getUserInfo: ({onDone, onFailed}) => {
+            $ajax({
+                url: '/info',
+                onFailed,
+                onDone,
+                json: true
+            })
+        },
         login: function (username, password, {onDone, onFailed}) {
-            $post('/login', {username, password}, onDone, onFailed)
+            $ajax({
+                url: '/login',
+                data: {username, password},
+                onFailed,
+                onDone,
+                type: 'post'
+            })
+        },
+        signUp: (fullname, username, password, {onDone, onFailed}) => {
+            $ajax({
+                url: '/signup',
+                data: {fullname, username, password},
+                onDone,
+                onFailed,
+                type: 'post'
+            })
+        },
+        logout: ({onDone, onFailed}) => {
+            $ajax({
+                url: '/logout2',
+                onDone,
+                onFailed
+            })
+        },
+        getRoomsOfUser: ({onDone, onFailed}) => {
+            $ajax({
+                url: '/room/listRoom',
+                onDone,
+                onFailed,
+                json: true
+            })
+        },
+        allRoomsStatistic: (month, year, {onDone, onFailed}) => {
+            onFailed()
+        },
+        totalSpendingEachMonthOfYear: (year, {onDone, onFailed}) => {
+            onFailed()
         }
     }
+    return a
 }
 
-api = FakeAPI()
+api = TrueAPI()
 

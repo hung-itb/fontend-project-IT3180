@@ -19,24 +19,13 @@
     <script>
         let user = null
         let currentRoom = null
+        function redirectToLoginPage() {
+            window.location.href = './login.html'
+        }
     </script>
 </head>
 
 <body>
-    <!-- Redirect to login.html if user haven't logined -->
-    <script>
-        let userId = localStorage.getItem('userId')
-        api.getUserInfo(userId, {
-            onDone: (resultUser) => {
-                if (!resultUser) window.location.href = './login.html'
-                user = resultUser
-            },
-            onFailed: () => {
-                window.location.href = './login.html'
-            }
-        })
-    </script>
-
     <nav id="navbar">
         <div id="nav-left-side">
             <!-- list rooms -->
@@ -68,7 +57,7 @@
         </div>
         <div id="nav-right-side">
             <div class="user-icon-wrapper">
-                <img src="./resources/default-avatar.jpg" alt="" id="user-icon">
+                <img src="./resources/user-images/default-avatar.jpg" alt="" id="user-icon">
             </div>
             <div class="log-out text-clickable">Log out</div>
 
@@ -76,16 +65,25 @@
             <script>
                 let jImg = $('#nav-right-side img')
                 $(() => jImg.width(jImg.height()))
-                jImg.attr('src', user.avatarUrl || './resources/user-images/default-avatar.jpg')
                 $('#nav-right-side .log-out').click(() => {
                     api.logout({
-                        onDone: () => { window.location.href = './login.html' },
-                        onFailed: (error) => alert(`ERROR: ${error || 'Có lỗi xảy ra'}!`)
+                        onDone: () => { window.location.href = './login.html' }
                     })
                 })
             </script>
         </div>
     </nav>
+
+    <!-- Redirect to login.html if user haven't logined -->
+    <script>
+        api.getUserInfo({
+            onDone: (resultUser) => {
+                user = resultUser
+                jImg.attr('src', user.avatarUrl || './resources/user-images/default-avatar.jpg')
+            },
+            onFailed: redirectToLoginPage
+        })
+    </script>
 
     <div id="main-container">
         <!-- Adjust the container height the first time acess page and when widow resize -->
@@ -106,6 +104,9 @@
             </div>
             <div class="item" tab-id="request-payments">
                 <span>Yêu cầu đóng phí</span>
+            </div>
+            <div class="item" tab-id="room-statistics">
+                <span>Thống kê phòng</span>
             </div>
             <div class="item" tab-id="room-members">
                 <span>Thông tin phòng</span>
@@ -318,7 +319,7 @@
                     Danh sách thành viên
                 </div>
 
-                <div class="item">
+                <!-- <div class="item">
                     <img src="./resources/user.png" alt="">
                     <div class="name">Name</div>
                     <div class="phone">Phone</div>
@@ -328,7 +329,7 @@
                             Chi tiết
                         </div>
                     </div>
-                </div>
+                </div> -->
 
                 <div id="view-join-room-req-of-room">
                     <img src="./resources/add-person.png" alt="">
@@ -381,6 +382,17 @@
                     <div class="op add-fee-with-dealine">
                         <img src="./resources/add.png" alt="">
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Thống kê phòng -->
+        <div class="content" id="room-statistics" style="display: none;">
+            <div class="small-trans">
+                <div class="header">Thống kê về các giao dịch nhỏ tháng trước</div>
+                <div class="total-prev-month">
+                    Tổng số tiền:
+                    <span class="value">34</span>k
                 </div>
             </div>
         </div>
@@ -509,7 +521,8 @@
                         $chart.css({
                             flex: 1
                         })
-                    }
+                    },
+                    onFailed: () => 1
                 })
             }
             if (s) makeAllRoomStatisticChart()
@@ -527,7 +540,8 @@
                         $chart.css({
                             flex: 1
                         })
-                    }
+                    },
+                    onFailed: () => 1
                 })
             }
             if (s) makeStatisticEachMonthChart()
@@ -591,10 +605,7 @@
             $('#nav-left-side .op-with-room').show()
 
             api.getRoomsOfUser({
-                onDone: loadListRoomViews,
-                onFailed: () => {
-                    alert('Có lỗi xảy ra!')
-                }
+                onDone: loadListRoomViews
             })
         }
         $('#nav-left-side .room-details .switch-room').click(showListRooms)
@@ -618,7 +629,7 @@
                     FormManager(jPopUp.find('form'), {
                         fieldNamesAndRequires: [
                             { name: 'name', requires: 'notEmpty', vnName: 'Tên phòng' },
-                            { name: 'address', requires: '', vnName: 'Địa chỉ phòng' }
+                            { name: 'address', requires: 'notEmpty', vnName: 'Địa chỉ phòng' }
                         ],
                         onSubmit: (formData) => {
                             let name = formData.name

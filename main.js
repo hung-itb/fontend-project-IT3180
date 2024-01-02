@@ -709,9 +709,14 @@ function loadRequestPaymentsView() {
     })
 }
 
+function loadRoomStatisticView() {
+
+}
+
 $('#left-side-bar .item[tab-id="input-transaction"]').click(loadInputTransactionView)
 $('#left-side-bar .item[tab-id="room-members"]').click(loadListRoomMembersView)
 $('#left-side-bar .item[tab-id="fixed-costs"]').click(loadFixedCostsView)
+$('#left-side-bar .item[tab-id="room-statistics"]').click(loadRoomStatisticView)
 $('#left-side-bar .item[tab-id="request-payments"]').click(loadRequestPaymentsView)
 
 let user_ops_html = `<div class="ops-wrapper">
@@ -908,3 +913,6 @@ addFloatElement($('.user-icon-wrapper')[0], user_ops_html, {
         })
     }
 })
+
+// $('#list-rooms .normal-rooms .room')[0].click()
+// $('#left-side-bar .item[tab-id="room-statistics"]').click()
