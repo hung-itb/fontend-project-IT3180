@@ -947,4 +947,19 @@ body {
   font-weight: 600;
   text-decoration: underline;
   cursor: pointer;
+}
+.pop-up .user-avatar {
+  width: 100%;
+}
+.pop-up .user-avatar .avatar {
+  width: 100%;
+}
+.pop-up .user-avatar .avatar img {
+  width: 100%;
+  -o-object-fit: cover;
+     object-fit: cover;
+  border-radius: 50%;
+}
+.pop-up .user-avatar .avatar .ops {
+  margin-top: 24px;
 }/*# sourceMappingURL=style.css.map */

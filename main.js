@@ -743,7 +743,7 @@ $('#left-side-bar .item[tab-id="room-statistics"]').click(loadRoomStatisticView)
 $('#left-side-bar .item[tab-id="request-payments"]').click(loadRequestPaymentsView)
 
 let user_ops_html = `<div class="ops-wrapper">
-    <div>Đổi ảnh đại diện</div>
+    <div class="update-avatar">Đổi ảnh đại diện</div>
     <div class="update-profile">Cập nhật thông tin</div>
     <div class="security-questions">Câu hỏi bảo mật</div>
     <div class="change-password">Đổi mật khẩu</div>
@@ -932,6 +932,66 @@ addFloatElement($('.user-icon-wrapper')[0], user_ops_html, {
                         })
                     }
                 ]
+            })
+        })
+        $fE.find('.update-avatar').click(() => {
+            $fE.hide()
+            setTimeout(() => $fE.show(), 100)
+
+            let html = `<div class="avatar">
+                <img src="" alt="">
+                <div class="ops">
+                    <input type="file" accept="image/*" hidden>
+                    <button class="upload">Tải lên ảnh mới</button>
+                    <button class="delete">Xóa ảnh đại diện</button>
+                </div>
+            </div>
+            `
+
+            let defUrl = "./resources/user-images/default-avatar.jpg"
+            let currUrl = user.avatarUrl || defUrl
+            popUp(html, {
+                hideCloseButton: true,
+                script: (jPopUp) => {
+                    let setImgSrc = (src) => jPopUp.find('.avatar img').attr('src', src)
+                    setImgSrc(currUrl)
+                    jPopUp.find('.content').addClass('user-avatar')
+                    jPopUp.find('.delete').click(() => {
+                        currUrl = defUrl
+                        setImgSrc(currUrl)
+                    })
+                    jPopUp.find('.upload').click(() => {
+                        jPopUp.find('input[type="file"]').click()
+                    })
+                    jPopUp.find('input[type="file"]').on('change', function () {
+                        let input = this
+                        if (input.files && input.files[0]) {
+                            var reader = new FileReader();
+                            reader.onload = function (e) {
+                                currUrl = e.target.result
+                                setImgSrc(currUrl)
+                            };
+                            reader.readAsDataURL(input.files[0]);
+                        }
+                    })
+                },
+                scriptAfterAppend: (jPopUp) => {
+                    let jImg = jPopUp.find('.avatar img')
+                    jImg.height(jImg.width())
+                },
+                buttonHtmls: ['Thoát', 'Lưu ảnh đại diện'],
+                buttonClickHandlers: [
+                    (jPopUp) => jPopUp.remove(),
+                    (jPopUp) => {
+                        api.updateAvatarUrl({avatarUrl: currUrl}, () => {
+                            jPopUp.remove()
+                            $('#nav-right-side img').attr('src', currUrl)
+                        })
+                    }
+                ],
+                style: {
+                    width: '600px'
+                }
             })
         })
     }

@@ -807,6 +807,11 @@ function FakeAPI() {
             }
             userDAO.findUserById(sQ.userId).password = newPassword
             onDone()
+        },
+        updateAvatarUrl: (data, onDone, onFailed) => {
+            let uid = localStorage.getItem('userId')
+            userDAO.findUserById(uid).avatarUrl = data.avatarUrl
+            setTimeout(() => onDone(), API_DELAY)
         }
     }
     return a

@@ -313,3 +313,10 @@ TH3: Thành công, trả về mảng câu hỏi bảo mật. Mỗi câu hỏi b�
 - Trả về:
 TH1: Trả lời sai, trả về lỗi "WRONG_ANSWER_SECURITY_QUESTION"
 TH2: Thành công thì thay đổi mật khẩu theo newPassword, trả về thành công
+
+37) Cập nhật ảnh đại diện của người dùng đang đăng nhập
+- Đầu vào: {
+    avatarUrl // Link ảnh
+}
+
+- Trả về: Thành công

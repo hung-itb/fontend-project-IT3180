@@ -1151,4 +1151,22 @@ body {
             }
         }
     }
+
+    .user-avatar {
+        width: 100%;
+
+        .avatar {
+            width: 100%;
+
+            img {
+                width: 100%;
+                object-fit: cover;
+                border-radius: 50%;
+            }
+
+            .ops {
+                margin-top: 24px;
+            }
+        }
+    }
 }
