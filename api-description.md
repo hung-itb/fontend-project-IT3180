@@ -275,3 +275,41 @@ Sẽ thất bại nếu user là trưởng phòng và số thành viên lớn h�
 }
 
 - Trả về: Thành công
+
+34) Thống kê giao dịch nhỏ tháng trước của phòng
+- Đầu vào: {
+    roomId
+}
+
+- Trả về {
+    total // Tổng chi tiêu của các giao dịch nhỏ của tháng trước,
+    average // Trung bình mỗi thành viên,
+    memberSpendings // Mảng, gồm các object. Mỗi object cho mỗi thành viên phòng dạng: {
+        fullname // Tên thành viên
+        spned // Số tiền thành viên này đã chi tiêu cho các giao dịch nhỏ
+    }
+}
+
+35) Lấy câu hỏi bảo mật theo username
+- Đầu vào: {
+    username
+}
+
+- Trả về:
+TH1: username không tồn tại, trả về lỗi "USERNAME_DOESNOT_EXIST"
+TH2: Số lượng câu hỏi bảo mật của username = 0> trả về lỗi "USER_DOESNOT_HAVE_SECURITY_QUESTION"
+TH3: Thành công, trả về mảng câu hỏi bảo mật. Mỗi câu hỏi bảo mật bao gồm {
+    id // Id của câu hỏi
+    question // Nội dung câu hỏi
+}
+
+36) Trả lời câu hỏi bảo mật và thay đổi mật khẩu
+- Đầu vào: {
+    questionId,
+    answer,
+    newPassword
+}
+
+- Trả về:
+TH1: Trả lời sai, trả về lỗi "WRONG_ANSWER_SECURITY_QUESTION"
+TH2: Thành công thì thay đổi mật khẩu theo newPassword, trả về thành công

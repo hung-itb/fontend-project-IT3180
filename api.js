@@ -6,7 +6,10 @@ const ERROR = {
     ROOM_ID_DOESNOT_EXIST: 'ROOM_ID_DOESNOT_EXIST',
     USER_HAS_BEEN_IN_ROOM: 'USER_HAS_BEEN_IN_ROOM',
     ROOM_ADMIN_CAN_NOT_LEAVE_ROOM: 'ROOM_ADMIN_CAN_NOT_LEAVE_ROOM',
-    NO_USER_LOGINED: 'No user is logged in'
+    NO_USER_LOGINED: 'No user is logged in',
+    USER_DOESNOT_HAVE_SECURITY_QUESTION: 'USER_DOESNOT_HAVE_SECURITY_QUESTION',
+    WRONG_ANSWER_SECURITY_QUESTION: 'WRONG_ANSWER_SECURITY_QUESTION',
+    ERROR: 'Có lỗi xảy ra!'
 }
 
 const DEV_MODE = true
@@ -706,8 +709,9 @@ function FakeAPI() {
         getSecurityQuestions: (onDone, onFailed) => {
             let uid = localStorage.getItem('userId')
             onDone(securityQuestions.filter(({userId}) => userId == uid).map(q => {
-                delete q.answer
-                return q
+                let r = {}
+                for (let k in q) if (k != 'answer') r[k] = q[k]
+                return r
             }))
         },
         deleteSecurityQuestion: (data, onDone, onFailed) => {
@@ -771,6 +775,38 @@ function FakeAPI() {
                 })
             }
             setTimeout(() => onDone(result), API_DELAY)
+        },
+        getSecurityQuestionsByUsername: (data, onDone, onFailed) => {
+            let {username} = data
+            let user = userDAO.findUserByUsername(username)
+            if (!user) {
+                setTimeout(() => onFailed(ERROR.USERNAME_DOESNOT_EXIST), API_DELAY)
+                return
+            }
+            let securityQuestionsOfUser = securityQuestions.filter(({userId}) => userId == user.id).map(q => {
+                let r = {}
+                for (let k in q) if (k != 'answer') r[k] = q[k]
+                return r
+            })
+            if (securityQuestionsOfUser.length == 0) {
+                setTimeout(() => onFailed(ERROR.USER_DOESNOT_HAVE_SECURITY_QUESTION), API_DELAY)
+                return
+            }
+            setTimeout(() => onDone(securityQuestionsOfUser), API_DELAY)
+        },
+        answerSecurityQuestion: (data, onDone, onFailed) => {
+            let {questionId, answer, newPassword} = data
+            let sQ = securityQuestions.find(({id}) => id == questionId)
+            if (!sQ) {
+                setTimeout(() => onFailed(ERROR.ERROR), API_DELAY)
+                return
+            }
+            if (sQ.answer != answer) {
+                setTimeout(() => onFailed(ERROR.WRONG_ANSWER_SECURITY_QUESTION), API_DELAY)
+                return
+            }
+            userDAO.findUserById(sQ.userId).password = newPassword
+            onDone()
         }
     }
     return a

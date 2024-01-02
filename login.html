@@ -44,6 +44,10 @@
 
                 <div class="errors"></div>
 
+                <div class="operations">
+                    <span class="text-clickable forgot-password">Quên mật khẩu?</span>
+                </div>
+
                 <div class="button-group">
                     <button class="login primary">Login</button>
                     <button class="sign-up primary">Sign up</button>
@@ -68,10 +72,6 @@
             </form>
 
             <script>
-                function loginSucess() {
-                    window.location.href = './index.html'
-                }
-
                 $('form.login button.sign-up').click(function (e) {
                     e.preventDefault()
                     $('form.login').hide()
@@ -89,6 +89,7 @@
                     let un = $('form.login input.username').val()
                     let pw = $('form.login input.password').val()
                     let $formError = $('form.login .errors').html('')
+                    if (un == '' || pw == '') return
 
                     api.login(un, pw, {
                         onDone: () => {
@@ -127,6 +128,106 @@
                             } else {
                                 $formError.html('<span>*Có lỗi xảy ra!</span>')
                             }
+                        }
+                    })
+                })
+
+                $('form.login .operations .forgot-password').click(() => {
+                    let html = `
+                        <div class="header">Quên mật khẩu</div>
+                        <form>
+                            <input type="text" class="primary" name="username">
+                            <span class="errors"></span>
+                            <button class="submit" style="display: none;"></button>
+                        </form>
+                    `
+                    popUp(html, {
+                        hideCloseButton: true,
+                        script: (jPopUp) => {
+                            FormManager(jPopUp.find('form'), {
+                                fieldNamesAndRequires: [
+                                    { name: 'username', requires: 'notEmpty', vnName: 'username' }
+                                ],
+                                onSubmit: ({username}) => {
+                                    api.getSecurityQuestionsByUsername({username}, (sQ) => {
+                                        jPopUp.remove()
+                                        let html2 = `
+                                            <div class="header">Quên mật khẩu</div>
+                                            <span class="text-clickable change-question" style="position: relative; bottom: 20px;">Đổi câu hỏi</span>
+                                            <form>
+                                                <input type="text" hidden name="questionId">
+                                                <input type="text" class="primary" name="answer">
+                                                <input type="text" class="primary" name="newPassword">
+                                                <input type="text" class="primary" name="newPasswordConfirm">
+                                                <span class="errors"></span>
+                                                <button class="submit" style="display: none;"></button>
+                                            </form>
+                                        `
+                                        popUp(html2, {
+                                            hideCloseButton: true,
+                                            script: (jPopUp) => {
+                                                FormManager(jPopUp.find('form'), {
+                                                    fieldNamesAndRequires: [
+                                                        { name: 'answer', requires: 'notEmpty', vnName: 'Câu trả lời' },
+                                                        { name: 'newPassword', requires: 'notEmpty', vnName: 'Mật khẩu mới' },
+                                                        { name: 'newPasswordConfirm', requires: 'notEmpty', vnName: 'Nhập lại mật khẩu mới' }
+                                                    ],
+                                                    onSubmit: (formData) => {
+                                                        let {newPassword, newPasswordConfirm} = formData
+                                                        if (newPassword != newPasswordConfirm) {
+                                                            popUpMessage('Mật khẩu mới và nội dung nhập lại không trùng khớp!')
+                                                            return
+                                                        }
+                                                        api.answerSecurityQuestion(formData, () => {
+                                                            jPopUp.remove()
+                                                            popUpMessage('Đổi mật khẩu thành công!')
+                                                        }, (err) => {
+                                                            if (err == ERROR.WRONG_ANSWER_SECURITY_QUESTION) {
+                                                                popUpMessage('Bạn đã trả lời sai câu hỏi bảo mật!')
+                                                            } else {
+                                                                popUpMessage('Có lỗi xảy ra!')
+                                                            }
+                                                        })
+                                                    },
+                                                    removeInputValueIfFormValid: false
+                                                })
+                                                let currQuestionIndex = 0
+                                                jPopUp.find('.header').html(sQ[0].question)
+                                                jPopUp.find('input[name="questionId"]').val(sQ[0].id)
+                                                jPopUp.find('.change-question').click(() => {
+                                                    currQuestionIndex = (currQuestionIndex + 1)%sQ.length
+                                                    jPopUp.find('.header').html(sQ[currQuestionIndex].question)
+                                                    jPopUp.find('input[name="questionId"]').val(sQ[currQuestionIndex].id)
+                                                })
+                                            },
+                                            buttonHtmls: ['Thoát', 'Đổi mật khẩu'],
+                                            buttonClickHandlers: [
+                                                (jPopUp) => jPopUp.remove(),
+                                                (jPopUp) => jPopUp.find('form button.submit').click()
+                                            ]
+                                        })
+                                    }, (err) => {
+                                        if (err == ERROR.USERNAME_DOESNOT_EXIST) {
+                                            popUpMessage('Username không tồn tại!')
+                                        }
+                                        else if (err == ERROR.USER_DOESNOT_HAVE_SECURITY_QUESTION) {
+                                            popUpMessage('Người dùng không có câu hỏi mật vậy nên không thể thực hiện chức năng quên mật khẩu!')
+                                        }
+                                        else {
+                                            popUpMessage('Có lỗi xảy ra!')
+                                        }
+                                    })
+                                },
+                                removeInputValueIfFormValid: false
+                            })
+                        },
+                        buttonHtmls: ['Thoát', 'Xác nhận'],
+                        buttonClickHandlers: [
+                            (jPopUp) => jPopUp.remove(),
+                            (jPopUp) => jPopUp.find('form button.submit').click()
+                        ],
+                        style: {
+                            'height': '400px'
                         }
                     })
                 })

@@ -649,6 +649,7 @@
                             api.createRoom(name, address, {
                                 onDone: (newRoom) => {
                                     jPopUp.remove()
+                                    newRoom.isAdmin = true
                                     currentRoom = newRoom
                                     showRoomDetails()
                                 }
