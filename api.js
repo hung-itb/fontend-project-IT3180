@@ -736,6 +736,9 @@ function FakeAPI() {
 function TrueAPI() {
     let base = 'http://localhost:8080'
     let DEV = true
+    function defaultOnFailed() {
+        popUpMessage('Có lỗi xảy ra!')
+    }
     function $ajax({url, data, onDone, onFailed, type, json}) {
         $.ajax({
             type: (type || 'get').toUpperCase(),
@@ -751,7 +754,7 @@ function TrueAPI() {
                 if (DEV) l(`"${url}"`, xhr.responseText)
                 if (onFailed) onFailed(xhr.responseText)
                 else {
-                    popUpMessage('Có lỗi xảy ra')
+                    defaultOnFailed()
                 }
             }
         })
@@ -799,10 +802,94 @@ function TrueAPI() {
             })
         },
         allRoomsStatistic: (month, year, {onDone, onFailed}) => {
-            onFailed()
+            
         },
         totalSpendingEachMonthOfYear: (year, {onDone, onFailed}) => {
-            onFailed()
+            
+        },
+        getSmallTransaction: (rid, month, year, specificUserId, {onDone, onFailed}) => {
+            
+        },
+        createSmallTransaction: (name, price, date, roomId, {onDone, onFailed}) => {
+            
+        },
+        updateSmallTransaction: (itemId, name, price, date, {onDone, onFailed}) => {
+            
+        },
+        deleteSmallTransaction: (itemId, {onDone, onFailed}) => {
+            
+        },
+        getUsersOfRoomId: (roomId, {onDone, onFailed}) => {
+            
+        },
+        getQuickStatisticInfo: (rid, {onDone, onFailed}) => {
+            
+        },
+        createFeesWithDeadline: (rid, name, price, deadline, {onDone, onFailed}) => {
+            
+        },
+        getFeesWithDeadline: (rid, {onDone, onFailed}) => {
+            
+        },
+        getPayFeeWDStatus: (rid, allUser, {onDone, onFailed}) => {
+            
+        },
+        changePayFeeWDStatus: (uid, fid, {onDone, onFailed}) => {
+            
+        },
+        deleteFeeWithDeadline: (fid, {onDone, onFailed}) => {
+            
+        },
+        updateFeeWithDeadline: (fid, name, price, deadline, {onDone, onFailed}) => {
+            
+        },
+        createRoom: (name, address, {onDone, onFailed}) => {
+            
+        },
+        createJoinRoomRequest: (roomId, {onDone, onFailed}) => {
+            
+        },
+        getJoinRoomRequestOfUser: ({onDone, onFailed}) => {
+            
+        },
+        getJoinRoomRequestOfRoom: (roomId, {onDone, onFailed}) => {
+            
+        },
+        cancelJoinRoomRequest: (roomId, {onDone, onFailed}) => {
+            
+        },
+        acceptJoinRoomRequest: (rid, uid, accept, {onDone, onFailed}) => {
+            
+        },
+        allRoomsStatistic: (month, year, {onDone, onFailed}) => {
+            
+        },
+        totalSpendingEachMonthOfYear: (year, {onDone, onFailed}) => {
+            
+        },
+        changeAdmin: (data, onDone, onFailed) => {
+            
+        },
+        leaveRoom: (data, onDone, onFailed) => {
+            
+        },
+        changePassword: (data, onDone, onFailed) => {
+            
+        },
+        updateProfile: (data, onDone, onFailed) => {
+            
+        },
+        getSecurityQuestions: (onDone, onFailed) => {
+            
+        },
+        deleteSecurityQuestion: (data, onDone, onFailed) => {
+            
+        },
+        addSecurityQuestion: (data, onDone, onFailed) => {
+            
+        },
+        removeMember: (data, onDone, onFailed) => {
+            
         }
     }
     return a

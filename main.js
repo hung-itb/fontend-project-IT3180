@@ -117,12 +117,12 @@ function loadInputTransactionView() {
         }
     })
 
-    function createItemInListTransaction({ id, itemName, userId, price, transactionDate }) {
+    function createItemInListTransaction({ id, itemName, userId, price, transactionDate, fullname }) {
         let editable = (userId == user.id) && (transactionDate.split('/')[1] == new Date().getMonth() + 1)
         let itemHtml = (`<div class="item">
             <div class="info">
                 <div class="product-name">${itemName}</div>
-                <div class="user-bought"></div>
+                <div class="user-bought">${fullname} - ${transactionDate}</div>
             </div>
 
             ${editable ? `<div class="more-operation">
@@ -138,11 +138,6 @@ function loadInputTransactionView() {
         `
 
         let jElem = $(itemHtml)
-        api.getUserInfo(userId, {
-            onDone: (user) => {
-                jElem.find('.info .user-bought').text(user.fullname + ' - ' + transactionDate)
-            }
-        })
 
         if (editable) addFloatElement(jElem.find('.more-operation')[0], fEHtml, {
             displayCondition: 'hover',
