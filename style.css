@@ -804,6 +804,36 @@ body {
 #main-container #list-rooms .normal-rooms .room:first-child {
   margin-left: 0;
 }
+#main-container #room-statistics .small-trans .header {
+  color: darkseagreen;
+  font-size: 40px;
+}
+#main-container #room-statistics .small-trans .total-prev-month, #main-container #room-statistics .small-trans .room-average {
+  font-size: 24px;
+}
+#main-container #room-statistics .small-trans .total-prev-month .val-wrap, #main-container #room-statistics .small-trans .room-average .val-wrap {
+  color: blue;
+}
+#main-container #room-statistics .small-trans .user {
+  display: flex;
+  padding: 16px;
+  background-color: #98EECC;
+  margin-top: 12px;
+  border-radius: 12px;
+}
+#main-container #room-statistics .small-trans .user > * {
+  flex: 1;
+}
+#main-container #room-statistics .small-trans .user .spend {
+  color: #919191;
+}
+#main-container #room-statistics .small-trans .user .delta {
+  color: #25d725;
+}
+#main-container #room-statistics .small-trans .user .delta.neg {
+  color: #ff3e3e;
+}
+
 .pop-up .join-request.of-user {
   display: flex;
   align-items: center;

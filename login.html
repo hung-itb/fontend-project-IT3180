@@ -120,7 +120,7 @@
                     }
 
                     api.signUp(fullname, un, pw, {
-                        onDone: () => window.location.href = './index.html',
+                        onDone: () => $('form.sign-up button.back-to-login').click(),
                         onFailed: (error) => {
                             if (error == ERROR.EXISTED_USERNAME) {
                                 $formError.html('<span>*usernam đã tồn tại!</span>')

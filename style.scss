@@ -965,8 +965,49 @@ body {
         }
     }
 
-    #room-info {
+    #room-statistics {
+        .small-trans {
+            .header {
+                color: darkseagreen;
+                font-size: 40px;
+            }
 
+            .total-prev-month, .room-average {
+                font-size: 24px;
+
+                .val-wrap {
+                    color: blue;
+                }
+            }
+
+            .user {
+                display: flex;
+                padding: 16px;
+                background-color: #98EECC;
+                margin-top: 12px;
+                border-radius: 12px;
+
+                & > * {
+                    flex: 1;
+                }
+
+                .fullname {
+                    
+                }
+
+                .spend {
+                    color: #919191;
+                }
+
+                .delta {
+                    color: #25d725;
+
+                    &.neg {
+                        color: #ff3e3e;
+                    }
+                }
+            }
+        }
     }
 }
 

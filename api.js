@@ -27,6 +27,7 @@ function FakeAPI() {
     let MAX_NUM_JOIN_ROOM_REQUESTS_PER_USER = 2
     let MAX_NUM_SMALL_TRANSCATION_PER_USER_PER_ROOM = 50
     let MAX_NUM_FEE_WITH_DEADLINE = 100
+    let API_DELAY = 100
 
     let random = RandomFunction()
     let randInt = (a, b) => Math.floor(random(a, b + 1))
@@ -298,19 +299,27 @@ function FakeAPI() {
                 let roomIdsOfUser = new Set(room_user.filter(({userId, status}) => uid == userId && status == 1).map(({roomId}) => roomId))
                 return rooms.filter(room => roomIdsOfUser.has(room.id))
             },
-            getNumUsersEarlyThisMonth: (rid) => {
+            getUsersEarlyThisMonth: (rid) => {
                 let earlyThisMonth = `${1}/${new Date().getMonth() + 1}/${new Date().getFullYear()}`
-                return room_user.filter(({userId, roomId, status, leaveDate}) => {
+                let pairs = room_user.filter(({userId, roomId, status, leaveDate}) => {
                     return roomId == rid
                     && (status == 1 || !CustomDateManager.d1SmallerThanD2(leaveDate, earlyThisMonth))
-                }).length
+                })
+                return pairs.map(({userId}) => userDAO.findUserById(userId))
             },
-            getNumUsersEarlyOfMonthAndYear: (rid, month, year) => {
+            getNumUsersEarlyThisMonth: (rid) => {
+                return roomDAO.getUsersEarlyThisMonth(rid).length
+            },
+            getUsersEarlyOfMonthAndYear: (rid, month, year) => {
                 let earlyThatMonth = `${1}/${month}/${year}`
-                return room_user.filter(({userId, roomId, status, leaveDate}) => {
+                let pairs = room_user.filter(({userId, roomId, status, leaveDate}) => {
                     return roomId == rid
                     && (status == 1 || !CustomDateManager.d1SmallerThanD2(leaveDate, earlyThatMonth))
-                }).length
+                })
+                return pairs.map(({userId}) => userDAO.findUserById(userId))
+            },
+            getNumUsersEarlyOfMonthAndYear: (rid, month, year) => {
+                return roomDAO.getUsersEarlyOfMonthAndYear(rid, month, year).length
             },
             getRoomById: (rid) => rooms.find(({id}) => rid == id)
         }
@@ -404,6 +413,10 @@ function FakeAPI() {
         getUserInfo: ({onDone, onFailed}) => {
             let userIdStorage = localStorage.getItem('userId')
             let user = userDAO.findUserById(userIdStorage)
+            if (!user) {
+                onFailed('Not logined!')
+                return
+            }
             onDone(user)
         },
         getRoomsOfUser: ({onDone, onFailed}) => {
@@ -728,6 +741,36 @@ function FakeAPI() {
                 leaveDate: CustomDateManager.now()
             })
             onDone()
+        },
+        roomSmallTransactionPrevMonthStatistic: (data, onDone, onFailed) => {
+            let {roomId} = data
+            let now = {
+                month: new Date().getMonth() + 1,
+                year: new Date().getFullYear()
+            }
+            let prevMonth = {
+                month: now.month == 1 ? 12 : now.month - 1,
+                year: now.month == 1 ? now.year - 1 : now.year
+            }
+            let prevMonthTrans = smallTransactionsDAO.getSmallTransaction(roomId, prevMonth.month, prevMonth.year)
+            let prevMonthUsers = roomDAO.getUsersEarlyOfMonthAndYear(roomId, prevMonth.month, prevMonth.year)
+            let userCount = OCPHS(prevMonthUsers, (user) => [user.id, 0])
+            let total = 0
+            prevMonthTrans.forEach(({userId, price}) => {
+                userCount[userId] += price
+                total += price
+            })
+            let result = {
+                total,
+                average: Math.ceil(total/prevMonthUsers.length),
+                memberSpendings: prevMonthUsers.map(user => {
+                    return {
+                        fullname: user.fullname,
+                        spend: userCount[user.id]
+                    }
+                })
+            }
+            setTimeout(() => onDone(result), API_DELAY)
         }
     }
     return a
@@ -895,5 +938,5 @@ function TrueAPI() {
     return a
 }
 
-api = TrueAPI()
+api = FakeAPI()
 

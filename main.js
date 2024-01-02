@@ -705,7 +705,35 @@ function loadRequestPaymentsView() {
 }
 
 function loadRoomStatisticView() {
+    let $cont = $('#room-statistics')
 
+    // Small transactions
+    let $stCont = $cont.find('.small-trans')
+    let now = {
+        month: new Date().getMonth() + 1,
+        year: new Date().getFullYear()
+    }
+    let prevMonth = {
+        month: now.month == 1 ? 12 : now.month - 1,
+        year: now.month == 1 ? now.year - 1 : now.year
+    }
+    $stCont.find('.header').html(`Thống kê về các giao dịch nhỏ tháng trước: ${prevMonth.month}/${prevMonth.year}`)
+    $stCont.find('.total-prev-month .value').html('')
+    $stCont.find('.room-average .value').html('')
+    $stCont.find('.details').html('')
+    api.roomSmallTransactionPrevMonthStatistic({roomId: currentRoom.id}, ({total, average, memberSpendings}) => {
+        $stCont.find('.total-prev-month .value').html(total)
+        $stCont.find('.room-average .value').html(average)
+        memberSpendings.forEach(({fullname, spend}) => {
+            let delta = Number(average) - Number(spend)
+            let html = `<div class="user">
+                <div class="fullname">${fullname}</div>
+                <div class="spend">Đã chi: ${spend}k</div>
+                <div class="delta ${delta > 0 ? 'neg' : ''}">${delta > 0 ? 'Phải trả' : 'Được nhận lại'}: ${Math.abs(delta)}k</div>
+            </div>`
+            $stCont.find('.details').append(html)
+        })
+    })
 }
 
 $('#left-side-bar .item[tab-id="input-transaction"]').click(loadInputTransactionView)
