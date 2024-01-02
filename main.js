@@ -447,7 +447,7 @@ function loadListRoomMembersView() {
 }
 
 function loadFixedCostsView() {
-    let isAdmin = (user.id == currentRoom.adminUserId)
+    let isAdmin = currentRoom.isAdmin
     let jCont = $('#fixed-costs')
     let limit = 5
 

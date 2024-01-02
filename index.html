@@ -488,7 +488,7 @@
             $('#navbar .room-details .room-name').html(currentRoom.roomName)
             $('#left-side-bar .item[tab-id="input-transaction"]').click()
 
-            let isAdmin = (user.id == currentRoom.adminUserId)
+            let isAdmin = currentRoom.isAdmin
             $('#left-side-bar .item[tab-id="request-payments"]').toggle(isAdmin)
         }
 
