@@ -1,6 +1,38 @@
 
 let l = console.log
 
+function fn_reZoom() {
+    let vr_checkpoints = [
+        [800, 0.6],
+        [1200, 0.7],
+        [1536, 0.8],
+        [1920, 1],
+        [2560, 4/3],
+        [3400, 1.7]
+    ]
+    let vr_numPoints = vr_checkpoints.length
+    vr_checkpoints.sort((a, b) => a[0] - b[0])
+    let vr_minCPWidth = vr_checkpoints[0][0]
+    let vr_maxCPWidth = vr_checkpoints[vr_numPoints - 1][0]
+
+    let vr_width = window.innerWidth || document.clientWidth || document.body?.clientWidth || 1536
+    let vr_zoom = 1
+
+    if (vr_width <= vr_minCPWidth) vr_zoom = vr_checkpoints[0][1]
+    else if (vr_maxCPWidth < vr_width) vr_zoom = vr_checkpoints[vr_numPoints - 1][1]
+    else {
+        for (let i = 0; i < vr_numPoints - 1; i++) {
+            if (vr_checkpoints[i][0] < vr_width) {
+                vr_zoom = vr_checkpoints[i][1] + (vr_checkpoints[i + 1][1] - vr_checkpoints[i][1])*(vr_width - vr_checkpoints[i][0])/(vr_checkpoints[i + 1][0] - vr_checkpoints[i][0])
+            }
+        }
+    }
+
+    document.body.style.zoom = vr_zoom
+    return fn_reZoom
+}
+$(() => window.onresize = fn_reZoom())
+
 function addFloatElement(e, html, option = null) {
     let defaultOption = {
         script: null, // Fuction do to after insert html to float element, pass float element to first parameters
