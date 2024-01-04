@@ -913,6 +913,11 @@ function TrueAPI() {
             })
         },
         createSmallTransaction: (name, price, date, roomId, {onDone, onFailed}) => {
+            let onDoneBackup = onDone
+            onDone = (p) => {
+                p.transactionDate = CustomDateManager.fromDBFormat(p.transactionTime)
+                onDoneBackup(p)
+            }
             $ajax({
                 url: '/transaction/create',
                 data: {
@@ -920,18 +925,25 @@ function TrueAPI() {
                     date: CustomDateManager.toDBFormat(date)
                 },
                 onDone, onFailed,
-                type: 'post'
+                type: 'post',
+                json: true
             })
         },
         updateSmallTransaction: (itemId, name, price, date, {onDone, onFailed}) => {
+            let onDoneBackup = onDone
+            onDone = (p) => {
+                p.transactionDate = CustomDateManager.fromDBFormat(p.transactionTime)
+                onDoneBackup(p)
+            }
             $ajax({
-                url: '/transaction/create',
+                url: '/transaction/update?id=' + itemId,
                 data: {
-                    name, price, roomId,
+                    name, price, itemId,
                     date: CustomDateManager.toDBFormat(date)
                 },
                 onDone, onFailed,
-                type: 'post'
+                type: 'put',
+                json: true
             })
         },
         deleteSmallTransaction: (itemId, {onDone, onFailed}) => {
@@ -950,9 +962,12 @@ function TrueAPI() {
             })
         },
         getQuickStatisticInfo: (rid, {onDone, onFailed}) => {
-            // $ajax({
-            //     url: '/transaction/getStatusMoney'
-            // })
+            $ajax({
+                url: '/transaction/getStatusMoney',
+                onDone, onFailed,
+                data: {roomId: rid},
+                json: true
+            })
         },
         createFeesWithDeadline: (rid, name, price, deadline, {onDone, onFailed}) => {
             $ajax({
@@ -981,7 +996,27 @@ function TrueAPI() {
             })
         },
         getPayFeeWDStatus: (rid, allUser, {onDone, onFailed}) => {
-            
+            if (allUser) {
+                let onDoneBackup = onDone
+                onDone = (p) => {
+                    
+                    onDoneBackup(p)
+                }
+                $ajax({
+                    url: '/feewd/roomStatusFeeWD',
+                    data: {roomId: rid},
+                    onDone, onFailed,
+                    json: true
+                })
+            }
+            else {
+                $ajax({
+                    url: '/feewd/userStatusFeeWD',
+                    data: {roomId: rid},
+                    onDone, onFailed,
+                    json: true
+                })
+            }
         },
         changePayFeeWDStatus: (uid, fid, {onDone, onFailed}) => {
             

@@ -95,6 +95,7 @@ function loadInputTransactionView() {
     
                 api.createSmallTransaction(name, price, date, currentRoom.id, {
                     onDone: (newItem) => {
+                        newItem.fullname = user.fullname
                         jAddItemForm.find('.errors').html('')
                         jAddItemForm.find('input').val('')
                         if (newItemInThisMonth) reloadQuickInfo()
