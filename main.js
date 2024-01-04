@@ -1,4 +1,6 @@
 
+let defaultAvatarUrl = "./resources/user-images/default-avatar.jpg"
+
 let addTransactionFormLoaded = false
 function loadInputTransactionView() {
     let jCont = $('#input-transaction')
@@ -320,23 +322,25 @@ function loadInputTransactionView() {
 
 let initedEventListRoomMembersView = false
 function loadListRoomMembersView() {
-    $('#view-join-room-req-of-room').toggle(user.id == currentRoom.adminUserId)
+    $('#view-join-room-req-of-room').toggle(currentRoom.isAdmin)
     let countReqs = $('#view-join-room-req-of-room .count').hide()
-    api.getJoinRoomRequestOfRoom(currentRoom.id, {
-        onDone: (joinReqs) => {
-            countReqs.text(joinReqs.length)
-            countReqs.toggle(joinReqs.length != 0)
-        }
-    })
+    if (currentRoom.isAdmin) {
+        api.getJoinRoomRequestOfRoom(currentRoom.id, {
+            onDone: (joinReqs) => {
+                countReqs.text(joinReqs.length)
+                countReqs.toggle(joinReqs.length != 0)
+            }
+        })
+    }
     let jCont = $('#room-members')
     jCont.find('.list-members > .item').remove()
 
     function createMemberAsLine({ id, fullname, avatarUrl, phoneNumber, bankNumber, bankName }) {
         let html = `
             <div class="item">
-                <img src="${avatarUrl}" alt="">
+                <img src="${avatarUrl || defaultAvatarUrl}" alt="">
                 <div class="name">${fullname}</div>
-                <div class="phone">${phoneNumber}</div>
+                <div class="phone">${phoneNumber || 'Không có'}</div>
                 <div class="bank">
                     ${bankName}: ${bankNumber}
                 </div>
@@ -344,7 +348,7 @@ function loadListRoomMembersView() {
         `
 
         let jItem = $(html)
-        if (currentRoom.isAdmin && id != user.id) {
+        if (currentRoom.isAdmin && fullname != user.fullname && phoneNumber != user.phoneNumber) {
             let fEHtml = '<button class="del-member primary">Xóa thành viên</button>'
             addFloatElement(jItem[0], fEHtml, {
                 displayCondition: 'hover',
@@ -835,8 +839,13 @@ addFloatElement($('.user-icon-wrapper')[0], user_ops_html, {
                         initInputValue: user,
                         onSubmit: (formData) => {
                             api.updateProfile(formData, () => {
-                                popUpMessage('Cập nhật thông tin thành công!')
-                                jPopUp.remove()
+                                api.getUserInfo({
+                                    onDone: (u) => {
+                                        user = u
+                                        popUpMessage('Cập nhật thông tin thành công!')
+                                        jPopUp.remove()
+                                    }
+                                })
                             })
                         }
                     })
@@ -948,8 +957,7 @@ addFloatElement($('.user-icon-wrapper')[0], user_ops_html, {
             </div>
             `
 
-            let defUrl = "./resources/user-images/default-avatar.jpg"
-            let currUrl = user.avatarUrl || defUrl
+            let currUrl = user.avatarUrl || defaultAvatarUrl
             popUp(html, {
                 hideCloseButton: true,
                 script: (jPopUp) => {
@@ -957,7 +965,7 @@ addFloatElement($('.user-icon-wrapper')[0], user_ops_html, {
                     setImgSrc(currUrl)
                     jPopUp.find('.content').addClass('user-avatar')
                     jPopUp.find('.delete').click(() => {
-                        currUrl = defUrl
+                        currUrl = defaultAvatarUrl
                         setImgSrc(currUrl)
                     })
                     jPopUp.find('.upload').click(() => {

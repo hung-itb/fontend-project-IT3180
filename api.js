@@ -824,12 +824,16 @@ function TrueAPI() {
         popUpMessage('Có lỗi xảy ra!')
     }
     function $ajax({url, data, onDone, onFailed, type, json}) {
+        type = (type || 'get').toUpperCase()
+        data = data || {}
+        if (type != 'GET') data = JSON.stringify(data)
+        if (url[0] != '/') url = '/' + url
         $.ajax({
-            type: (type || 'get').toUpperCase(),
+            type,
             url: base + url,
             contentType: "application/json",
             dataType: json ? 'json' : 'text',
-            data: data ? JSON.stringify(data) : {},
+            data,
             success: (result, status, xhr) => {
                 if (DEV) l(`"${url}"`, result)
                 if (onDone) onDone(result)
@@ -892,28 +896,89 @@ function TrueAPI() {
             
         },
         getSmallTransaction: (rid, month, year, specificUserId, {onDone, onFailed}) => {
-            
+            let pV = ['', rid, year, month]
+            if (specificUserId) pV.push(specificUserId)
+            let onDoneBackup = onDone
+            onDone = (p) => {
+                for (let sT of p) {
+                    sT.transactionDate = CustomDateManager.fromDBFormat(sT.transactionTime)
+                }
+                onDoneBackup(p)
+            }
+            $ajax({
+                url: '/transaction/getByRoomId' + pV.join('/'),
+                onDone, onFailed,
+                type: 'get',
+                json: true
+            })
         },
         createSmallTransaction: (name, price, date, roomId, {onDone, onFailed}) => {
-            
+            $ajax({
+                url: '/transaction/create',
+                data: {
+                    name, price, roomId,
+                    date: CustomDateManager.toDBFormat(date)
+                },
+                onDone, onFailed,
+                type: 'post'
+            })
         },
         updateSmallTransaction: (itemId, name, price, date, {onDone, onFailed}) => {
-            
+            $ajax({
+                url: '/transaction/create',
+                data: {
+                    name, price, roomId,
+                    date: CustomDateManager.toDBFormat(date)
+                },
+                onDone, onFailed,
+                type: 'post'
+            })
         },
         deleteSmallTransaction: (itemId, {onDone, onFailed}) => {
-            
+            $ajax({
+                url: '/transaction/delete/' + itemId,
+                onDone, onFailed,
+                type: 'delete'
+            })
         },
         getUsersOfRoomId: (roomId, {onDone, onFailed}) => {
-            
+            $ajax({
+                url: '/room/memberOfRoom',
+                data: { roomId },
+                onDone, onFailed,
+                json: true
+            })
         },
         getQuickStatisticInfo: (rid, {onDone, onFailed}) => {
-            
+            // $ajax({
+            //     url: '/transaction/getStatusMoney'
+            // })
         },
         createFeesWithDeadline: (rid, name, price, deadline, {onDone, onFailed}) => {
-            
+            $ajax({
+                url: '/feewd/create',
+                data: {
+                    roomId: rid,
+                    deadline: CustomDateManager.toDBFormat(deadline),
+                    name, price
+                },
+                onDone, onFailed,
+                type: 'post'
+            })
         },
         getFeesWithDeadline: (rid, {onDone, onFailed}) => {
-            
+            let onDoneBackup = onDone
+            onDone = (fs) => {
+                for (let f of fs) {
+                    f.deadline = CustomDateManager.fromDBFormat(f.deadline)
+                }
+                onDoneBackup(fs)
+            }
+            $ajax({
+                url: '/feewd/getByRoomId/' + rid,
+                onDone, onFailed,
+                json: true
+            })
         },
         getPayFeeWDStatus: (rid, allUser, {onDone, onFailed}) => {
             
@@ -922,28 +987,83 @@ function TrueAPI() {
             
         },
         deleteFeeWithDeadline: (fid, {onDone, onFailed}) => {
-            
+            $ajax({
+                url: '/feewd/delete/' + fid,
+                onDone, onFailed,
+                type: 'delete'
+            })
         },
         updateFeeWithDeadline: (fid, name, price, deadline, {onDone, onFailed}) => {
-            
+            $ajax({
+                url: '/feewd/update/' + fid,
+                onDone, onFailed,
+                data: {
+                    name, price,
+                    deadline: CustomDateManager.toDBFormat(deadline)
+                },
+                type: 'put'
+            })
         },
         createRoom: (name, address, {onDone, onFailed}) => {
-            
+            $ajax({
+                url: '/room/create',
+                data: {name, address},
+                onDone, onFailed,
+                type: 'post',
+                json: true
+            })
         },
         createJoinRoomRequest: (roomId, {onDone, onFailed}) => {
-            
+            $ajax({
+                url: '/room/join',
+                data: {roomId},
+                onDone, onFailed,
+                type: 'post'
+            })
         },
         getJoinRoomRequestOfUser: ({onDone, onFailed}) => {
-            
+            let onDoneBackup = onDone
+            onDone = (js) => {
+                js.forEach(j => j.requestDate = CustomDateManager.fromDBFormat(j.requestDate))
+                onDoneBackup(js)
+            }
+            $ajax({
+                url: '/room/joinRoomRequests',
+                onDone, onFailed,
+                json: true
+            })
         },
         getJoinRoomRequestOfRoom: (roomId, {onDone, onFailed}) => {
-            
+            let onDoneBackup = onDone
+            onDone = (js) => {
+                js.forEach(j => j.requestDate = CustomDateManager.fromDBFormat(j.requestDate))
+                onDoneBackup(js)
+            }
+            $ajax({
+                url: '/room/JRRForAdmin',
+                data: {roomId},
+                onDone, onFailed,
+                json: true
+            })
         },
         cancelJoinRoomRequest: (roomId, {onDone, onFailed}) => {
-            
+            $ajax({
+                url: '/room/joinRoomRequests/cancel?roomId=' + roomId,
+                onDone, onFailed,
+                type : 'delete'
+            })
         },
         acceptJoinRoomRequest: (rid, uid, accept, {onDone, onFailed}) => {
-            
+            $ajax({
+                url: 'room/JRRForAdmin/approval',
+                data: {
+                    roomId: rid,
+                    userId: uid,
+                    accept
+                },
+                onDone, onFailed,
+                type: 'put'
+            })
         },
         allRoomsStatistic: (month, year, {onDone, onFailed}) => {
             
@@ -952,32 +1072,81 @@ function TrueAPI() {
             
         },
         changeAdmin: (data, onDone, onFailed) => {
-            
+            $ajax({
+                url: '/room/switchAdmin',
+                data, onDone, onFailed
+            })
         },
         leaveRoom: (data, onDone, onFailed) => {
-            
+            $ajax({
+                url: '/room/leaveRoom',
+                data, onDone, onFailed
+            })
         },
         changePassword: (data, onDone, onFailed) => {
-            
+            $ajax({
+                url: '/change-password',
+                type: 'post',
+                data, onDone, onFailed
+            })
         },
         updateProfile: (data, onDone, onFailed) => {
-            
+            $ajax({
+                url: '/update',
+                type: 'put',
+                data, onDone, onFailed
+            })
         },
         getSecurityQuestions: (onDone, onFailed) => {
-            
+            $ajax({
+                url: '/security-question/get',
+                onDone, onFailed,
+                json: true
+            })
         },
         deleteSecurityQuestion: (data, onDone, onFailed) => {
-            
+            $ajax({
+                url: '/security-question/delete/' + data.id,
+                onDone, onFailed,
+                type: 'delete'
+            })
         },
         addSecurityQuestion: (data, onDone, onFailed) => {
-            
+            $ajax({
+                url: '/security-question/add',
+                data, onDone, onFailed,
+                type: 'post'
+            })
         },
         removeMember: (data, onDone, onFailed) => {
+            $ajax({
+                url: '/room/memberOfRoom/deleteMember',
+                data, onDone, onFailed
+            })
+        },
+        roomSmallTransactionPrevMonthStatistic: (data, onDone, onFailed) => {
+            
+        },
+        getSecurityQuestionsByUsername: (data, onDone, onFailed) => {
+            $ajax({
+                url: '/security-question/get-by-username',
+                data, onDone, onFailed,
+                json: true
+            })
+        },
+        answerSecurityQuestion: (data, onDone, onFailed) => {
+            $ajax({
+                url: '/security-question/answer-and-change-password',
+                data, onDone, onFailed,
+                type: 'post'
+            })
+        },
+        updateAvatarUrl: (data, onDone, onFailed) => {
             
         }
     }
     return a
 }
 
-api = FakeAPI()
+api = TrueAPI()
 

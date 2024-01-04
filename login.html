@@ -192,11 +192,11 @@
                                                     removeInputValueIfFormValid: false
                                                 })
                                                 let currQuestionIndex = 0
-                                                jPopUp.find('.header').html(sQ[0].question)
+                                                jPopUp.find('.header').html('Câu hỏi: ' + sQ[0].question)
                                                 jPopUp.find('input[name="questionId"]').val(sQ[0].id)
                                                 jPopUp.find('.change-question').click(() => {
                                                     currQuestionIndex = (currQuestionIndex + 1)%sQ.length
-                                                    jPopUp.find('.header').html(sQ[currQuestionIndex].question)
+                                                    jPopUp.find('.header').html('Câu hỏi: ' + sQ[currQuestionIndex].question)
                                                     jPopUp.find('input[name="questionId"]').val(sQ[currQuestionIndex].id)
                                                 })
                                             },

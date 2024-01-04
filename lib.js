@@ -214,7 +214,15 @@ let CustomDateManager = (() => {
                 return (a.toCompareableNumber(get(x)) - a.toCompareableNumber(get(y)))*(desc ? -1 : 1)
             })
         },
-        now: () => a.toCustomDate(new Date())
+        now: () => a.toCustomDate(new Date()),
+        toDBFormat: (s) => {
+            let [d, m, y] = s.split('/').map(i => i.length == 1 ? '0' + i : i)
+            return `${y}-${m}-${d}T00:00:00.000+00:00`
+        },
+        fromDBFormat: (s) => {
+            let [y, m, d] = s.split('T')[0].split('-').map(i => Number(i))
+            return `${d}/${m}/${y}`
+        }
     }
     return a
 })()
