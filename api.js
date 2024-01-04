@@ -999,8 +999,38 @@ function TrueAPI() {
             if (allUser) {
                 let onDoneBackup = onDone
                 onDone = (p) => {
-                    
-                    onDoneBackup(p)
+                    function x(fs) {
+                        let eSign = new Set()
+                        let pC = p.map(sp => {
+                            let c = {}
+                            for (let k in sp) c[k] = sp[k]
+                            return c
+                        })
+                        return pC.filter(sp => {
+                            let sign = fs.map(f => sp[f] || 'abc').join('--')
+                            if (!eSign.has(sign)) {
+                                eSign.add(sign)
+                                return true
+                            }
+                            return false
+                        })
+                    }
+                    let users = x(['userId'])
+                    users.forEach(u => {
+                        u.inRoom = u.inRoomStatus
+                        u.id = u.userId
+                    })
+                    let feesWithDealine = x(['feeId'])
+                    feesWithDealine.forEach(f => {
+                        f.name = f.feeName
+                        f.id = f.feeId
+                        f.deadline = CustomDateManager.fromDBFormat(f.deadline)
+                    })
+                    let payStatus = x(['feeId', 'userId'])
+                    payStatus.forEach(ps => {
+                        ps.status = ps.payStatus
+                    })
+                    onDoneBackup({users, feesWithDealine, payStatus})
                 }
                 $ajax({
                     url: '/feewd/roomStatusFeeWD',
@@ -1019,7 +1049,11 @@ function TrueAPI() {
             }
         },
         changePayFeeWDStatus: (uid, fid, {onDone, onFailed}) => {
-            
+            $ajax({
+                url: '/feewd/reverseStatus/' + uid + '/' + fid,
+                onDone, onFailed,
+                type: 'patch'
+            })
         },
         deleteFeeWithDeadline: (fid, {onDone, onFailed}) => {
             $ajax({
