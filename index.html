@@ -592,6 +592,7 @@
                 let roomHtml = (`
                     <div class="room">
                         <div class="title">${rooms[i].roomName}</div>
+                        <div class="mark-admin${rooms[i].isAdmin ? ' is-admin' : ''}">Trưởng phòng</div>
                     </div>
                 `)
                 let jRoom = $(roomHtml)

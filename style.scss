@@ -938,20 +938,29 @@ body {
         .normal-rooms {
             height: 25%;
             overflow-x: auto;
-            white-space: nowrap;
+            display: flex;
 
             .room {
                 width: 300px;
-                display: inline-block;
                 margin-left: 56px;
                 font-size: 24px;
                 background-color: #98EECC;
                 height: 100%;
                 padding: 12px;
                 cursor: pointer;
+                flex-shrink: 0;
 
                 .title {
                     font-weight: 600;
+                }
+
+                .mark-admin {
+                    color: red;
+                    display: none;
+
+                    &.is-admin {
+                        display: block;
+                    }
                 }
     
                 &:hover {

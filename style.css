@@ -783,20 +783,27 @@ body {
 #main-container #list-rooms .normal-rooms {
   height: 25%;
   overflow-x: auto;
-  white-space: nowrap;
+  display: flex;
 }
 #main-container #list-rooms .normal-rooms .room {
   width: 300px;
-  display: inline-block;
   margin-left: 56px;
   font-size: 24px;
   background-color: #98EECC;
   height: 100%;
   padding: 12px;
   cursor: pointer;
+  flex-shrink: 0;
 }
 #main-container #list-rooms .normal-rooms .room .title {
   font-weight: 600;
+}
+#main-container #list-rooms .normal-rooms .room .mark-admin {
+  color: red;
+  display: none;
+}
+#main-container #list-rooms .normal-rooms .room .mark-admin.is-admin {
+  display: block;
 }
 #main-container #list-rooms .normal-rooms .room:hover {
   background-color: #6bd1a8;
