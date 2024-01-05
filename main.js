@@ -241,6 +241,7 @@ function loadInputTransactionView() {
                                     
                                     api.updateSmallTransaction(id, name, price, date, {
                                         onDone: (newItem) => {
+                                            newItem.fullname = user.fullname
                                             jPopUp.find('input').val('')
                                             jPopUp.remove()
                                             jElem.remove()
@@ -349,7 +350,7 @@ function loadListRoomMembersView() {
         `
 
         let jItem = $(html)
-        if (currentRoom.isAdmin && fullname != user.fullname && phoneNumber != user.phoneNumber) {
+        if (currentRoom.isAdmin && id != user.id) {
             let fEHtml = '<button class="del-member primary">Xóa thành viên</button>'
             addFloatElement(jItem[0], fEHtml, {
                 displayCondition: 'hover',
@@ -463,15 +464,15 @@ function loadFixedCostsView() {
         let jItemsCont = jCont.find('.left #list-fixed-costs .fixed-costs').html('')
         api.getPayFeeWDStatus(currentRoom.id, false, {
             onDone: (fees) => {
-                let total = fees.reduce((prev, {pricePerUser, status}) => prev + (status == 0 ? Number(pricePerUser) : 0), 0)
+                let total = fees.reduce((prev, {pricePerUser, status}) => prev + (status == 0 ? Math.ceil(Number(pricePerUser)) : 0), 0)
                 jItemsCont.parent().find('.total .value').html(`${total}k`)
                 function add(startIdx, endIdx) {
                     jItemsCont.find('.more-fwd').remove()
                     for (var i = startIdx; i <= endIdx && i < fees.length; i++) {
-                        let {feeName, status, pricePerUser} = fees[i]
+                        let {feeName, status, pricePerUser, price, deadline} = fees[i]
                         jItemsCont.append(`<div class="item">
-                            <div class="title">${feeName}</div>
-                            <div class="value${status == 1 ? ' done' : ''}">${pricePerUser}k</div>
+                            <div class="title">${feeName} (tổng: ${price}k, hạn: ${deadline})</div>
+                            <div class="value${status == 1 ? ' done' : ''}">${Math.ceil(Number(pricePerUser))}k</div>
                         </div>`)
                     }
                     if (i != fees.length) {
@@ -519,7 +520,7 @@ function loadFixedCostsView() {
                             if (status == 1) count_pay_done += 1
                             if (!mapUserIdToJLine[userId]) return
                             let doneClass = status == 1 ? ' done' : ''
-                            let jE = $(`<div class="col${doneClass}">${feeName}<br>${pricePerUser}k</div>`)
+                            let jE = $(`<div class="col${doneClass}">${feeName}<br>${Math.ceil(Number(pricePerUser))}k</div>`)
                                 .click(() => {
                                     api.changePayFeeWDStatus(userId, fees[i].id, {
                                         onDone: () => {
@@ -537,7 +538,7 @@ function loadFixedCostsView() {
                         idUserDoesnotHasFee.forEach(id => {
                             mapUserIdToJLine[id].append(`<div class="col empty"></div>`)
                         })
-                        jSCont.find('.total .line').append(`<div class="col">${count_pay_done}/${count_pay_total}</div>`)
+                        jSCont.find('.total .line').append(`<div class="col">${count_pay_done}/${count_pay_total}<br>Tổng: ${fees[i].price}k</div>`)
                     }
                     if (j != fees.length) { // Chưa hết
                         let jShowMoreFees = $('<div class="col empty"><div class="show-more-fees text-clickable">Hiển thị thêm</div></div>')
@@ -995,6 +996,7 @@ addFloatElement($('.user-icon-wrapper')[0], user_ops_html, {
                         api.updateAvatarUrl({avatarUrl: currUrl}, () => {
                             jPopUp.remove()
                             $('#nav-right-side img').attr('src', currUrl)
+                            user.avatarUrl = currUrl
                         })
                     }
                 ],

@@ -1040,6 +1040,11 @@ function TrueAPI() {
                 })
             }
             else {
+                let onDoneBackup = onDone
+                onDone = (rs) => {
+                    rs.forEach(r => r.deadline = CustomDateManager.fromDBFormat(r.deadline))
+                    onDoneBackup(rs)
+                }
                 $ajax({
                     url: '/feewd/userStatusFeeWD',
                     data: {roomId: rid},
@@ -1194,7 +1199,12 @@ function TrueAPI() {
             })
         },
         roomSmallTransactionPrevMonthStatistic: (data, onDone, onFailed) => {
-            
+            $ajax({
+                url: '/api/transactions/last_month',
+                data, onDone, onFailed,
+                type: 'post',
+                json: 'true'
+            })
         },
         getSecurityQuestionsByUsername: (data, onDone, onFailed) => {
             $ajax({
@@ -1211,7 +1221,11 @@ function TrueAPI() {
             })
         },
         updateAvatarUrl: (data, onDone, onFailed) => {
-            
+            $ajax({
+                url: '/update_avatar',
+                data, onDone, onFailed,
+                type: 'put'
+            })
         }
     }
     return a

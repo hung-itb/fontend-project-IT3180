@@ -133,6 +133,10 @@ form .errors {
   color: #07791a;
 }
 
+select {
+  min-width: 200px;
+}
+
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
