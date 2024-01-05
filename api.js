@@ -71,8 +71,13 @@ function FakeAPI() {
         }
         return `${randInt(1, 28)}/${randInt(1, 12)}/${n_y + 1}`
     }
+    let existedId = new Set()
     let randomId = (prefix = '') => {
-        return prefix + randInt(10E16, 10E17 - 1)
+        // return prefix + randInt(10E16, 10E17 - 1)
+        let id = randInt(1, 2E9)
+        while (existedId.has(id)) id = randInt(1, 2E9)
+        existedId.add(id)
+        return id
     }
     
     function initUsers(NUM_USERS) {
@@ -104,9 +109,9 @@ function FakeAPI() {
         let secQuess = []
         for (let user of users) {
             let userId = user.id
-            let id = randomId()
             let numQues = randInt(0, MAX_NUM_SECURITY_QUESTIONS_PER_USER)
             for (let j = 0; j < numQues; j++) {
+                let id = randomId()
                 let a = randInt(1E2, 1E3)
                 let b = randInt(1E2, 1E3)
                 secQuess.push({
@@ -265,6 +270,137 @@ function FakeAPI() {
     let joinRoomRequests = initJoinReq(users, rooms, room_user, MAX_NUM_JOIN_ROOM_REQUESTS_PER_USER)
     let smallTransactions = initSmallTransactions(room_user, MAX_NUM_SMALL_TRANSCATION_PER_USER_PER_ROOM)
     let [feesWithDealine, user_feeWithDeadline] = initFeeWithDeadline(room_user, MAX_NUM_FEE_WITH_DEADLINE)
+    
+    let generateSQLScript = false
+    if (generateSQLScript) {
+        let tables = [
+            ['user', users, {
+                id: '',
+                avatar_url: '_',
+                bank_account_number: 'bankNumber',
+                bank_name: '_',
+                name: 'fullname',
+                phone_number: '_',
+                username: '',
+                password: ''
+            }, {
+                transform: {
+                    password: (x) => '$2a$10$eSWWQ94PQkhwN7t5F1Bgxe06oyZBYkhYXUDYSDbW7c.Bw/5aAejXm'
+                }
+            }],
+            ['security_question', securityQuestions, {
+                id: '',
+                question: '',
+                answer: '',
+                user_id: '_'
+            }],
+            ['room', rooms, {
+                id: '',
+                address: '',
+                admin_id: 'adminUserId',
+                name: 'roomName'
+            }],
+            ['member_of_room', room_user, {
+                room_id: '_',
+                status: '',
+                user_id: '_',
+                join_date: '_',
+                out_date: 'leaveDate'
+            }, {
+                transform: {
+                    join_date: CustomDateManager.toDBFormat,
+                    out_date: CustomDateManager.toDBFormat
+                }
+            }],
+            ['join_room_request', joinRoomRequests, {
+                room_id: '_',
+                status: '',
+                user_id: '_',
+                request_date: '_'
+            }, {
+                transform: {
+                    request_date: CustomDateManager.toDBFormat
+                }
+            }],
+            ['small_transaction', smallTransactions, {
+                id: '',
+                item_name: '_',
+                price: '',
+                room_id: '_',
+                user_id: '_',
+                transaction_time: 'transactionDate'
+            }, {
+                transform: {
+                    transaction_time: CustomDateManager.toDBFormat
+                }
+            }],
+            ['fee_with_deadline', feesWithDealine, {
+                id: '',
+                deadline: '',
+                fee_name: 'name',
+                money: 'price',
+                room_id: '_'
+            }, {
+                transform: {
+                    deadline: CustomDateManager.toDBFormat
+                }
+            }],
+            ['user_fee_with_deadline', user_feeWithDeadline, {
+                fee_id: '_',
+                user_id: '_',
+                status: ''
+            }]
+        ]
+
+        let subScripts = ['use quanlynhatro;']
+
+        tables.forEach(table => {
+            let [tableName, container, mapFromTableKeyToContainerKey, options] = table
+            let dbKeys = Object.keys(mapFromTableKeyToContainerKey)
+
+            let line1Pattern = 'INSERT INTO `tableName` (keys) VALUES'
+            let line1 = line1Pattern.replace('tableName', tableName)
+            line1 = line1.replace('keys', dbKeys.map(k => '`' + k + '`').join(', '))
+
+            let lineValuePattern = '(valuesForEachKey)'
+            let valueLines = []
+            container.forEach(row => {
+                let toReplace = dbKeys.map(dbKey => {
+                    let corrKey = mapFromTableKeyToContainerKey[dbKey]
+                    if (corrKey == '') corrKey = dbKey
+                    else if (corrKey == '_') {
+                        let paths = dbKey.split('_')
+                        for (let i = 1; i < paths.length; i++) {
+                            let path_elems = paths[i].split('')
+                            if (path_elems.length > 0) path_elems[0] = path_elems[0].toUpperCase()
+                            paths[i] = path_elems.join('')
+                        }
+                        corrKey = paths.join('')
+                    }
+                    let originalValue = row[corrKey]
+                    if (originalValue != undefined) {
+                        let transformFunc = options?.transform?.[dbKey]
+                        let transformedValue = transformFunc ? transformFunc(originalValue) : originalValue
+                        if (!TypeManager.isNumeric(transformedValue)) transformedValue = `'${transformedValue}'`
+                        return transformedValue
+                    }
+                    return 'NULL'
+                }).join(', ')
+                valueLines.push(lineValuePattern.replace('valuesForEachKey', toReplace))
+            })
+
+            let tableScript = line1 + '\n' + valueLines.join(',\n') + ';'
+            subScripts.push(tableScript)
+        })
+
+        let finalData = subScripts.join('\n\n\n')
+        let link = document.createElement("a")
+        let file = new Blob([finalData], { type: 'text/plain' })
+        link.href = URL.createObjectURL(file)
+        link.download = 'quanlynhatro-script.sql'
+        link.click()
+        URL.revokeObjectURL(link.href)
+    }
 
     let userDAO = (() => {
         return {
